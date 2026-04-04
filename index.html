@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>給食成分表</title>
+<style>
+:root{
+  --bg:#0f1923;--bg2:#161f2c;--panel:#1c2736;--border:#263040;
+  --accent:#3b9eff;--accent2:#00d4aa;--accent3:#ff6b6b;--amber:#ffb347;
+  --text:#e8edf5;--text2:#8a9ab5;--text3:#4a5a6e;--card-on:#1e3550;
+  --font:-apple-system,'Hiragino Sans','Hiragino Kaku Gothic ProN',sans-serif;
+  --sat-t:env(safe-area-inset-top,0px);--sat-b:env(safe-area-inset-bottom,0px);
+  --hh:50px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;-webkit-font-smoothing:antialiased}
+.app{display:flex;flex-direction:column;height:100dvh;padding-top:var(--sat-t);padding-bottom:var(--sat-b)}
+
+/* ── Header ── */
+.hdr{flex-shrink:0;height:var(--hh);background:var(--panel);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 12px;gap:8px;z-index:20;box-shadow:0 2px 12px rgba(0,0,0,.4)}
+.logo{font-size:15px;font-weight:800;color:var(--accent);letter-spacing:-.02em;white-space:nowrap}
+.logo span{color:var(--text3);font-weight:400;font-size:10px;margin-left:4px}
+.sw{flex:1;position:relative;display:flex;align-items:center}
+.sw input{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);
+  border-radius:7px;padding:5px 28px 5px 9px;font-size:12px;font-family:var(--font);
+  outline:none;transition:border-color .15s}
+.sw input:focus{border-color:var(--accent)}
+.sw input::placeholder{color:var(--text3)}
+.sw-x{position:absolute;right:7px;top:50%;transform:translateY(-50%);
+  color:var(--text3);cursor:pointer;font-size:14px;display:none}
+.sw input:not(:placeholder-shown)~.sw-x{display:block}
+.ctgl{background:transparent;border:1px solid var(--border);color:var(--text2);border-radius:7px;
+  padding:5px 9px;font-size:11px;cursor:pointer;white-space:nowrap;flex-shrink:0;
+  font-family:var(--font);transition:border-color .12s,color .12s}
+.ctgl.on{border-color:var(--accent);color:var(--accent)}
+
+/* ══ Calc panel ══ */
+.cpanel{flex-shrink:0;background:var(--bg2);border-bottom:2px solid var(--border);
+  overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1);max-height:0}
+.cpanel.open{max-height:290px}
+.ci{padding:6px 8px 8px;display:flex;flex-direction:column;gap:5px}
+/* result card inside icard grid */
+.icard.rc{display:flex;flex-direction:column;justify-content:center;gap:2px;padding:6px 7px}
+.icard.rc.hi{border-color:var(--accent);background:#0d1f35}
+.cc-l{font-size:8px;color:var(--text3);font-weight:600;letter-spacing:.03em;line-height:1.2}
+.cc-v{font-size:28px;font-weight:900;color:var(--accent2);font-variant-numeric:tabular-nums;line-height:1.05}
+.icard.rc.hi .cc-v{color:var(--accent);font-size:28px}
+.cc-u{font-size:8px;color:var(--text3)}
+
+/* Sex row */
+.sex-row{display:flex;align-items:center;gap:8px;padding:0 2px}
+.sex-wrap{display:flex;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.sx{padding:5px 16px;font-size:11px;font-weight:700;cursor:pointer;background:var(--panel);
+  color:var(--text3);border:none;font-family:var(--font);transition:background .12s,color .12s}
+.sx.on{background:var(--accent);color:#fff}
+.bmi-chip{margin-left:auto;display:flex;align-items:baseline;gap:4px}
+.bmi-num{font-size:22px;font-weight:900;font-variant-numeric:tabular-nums;color:var(--amber)}
+.bmi-sub{font-size:9px;color:var(--text3);letter-spacing:.05em}
+
+/* ── Card grid rows ── */
+.card-row{display:grid;gap:5px;padding:0 2px}
+.card-row.r3{grid-template-columns:repeat(3,1fr)}
+.card-row.r2{grid-template-columns:repeat(2,1fr)}
+.card-row.r4{grid-template-columns:repeat(4,1fr)}
+
+/* ── Input card ── */
+.icard{
+  background:var(--panel);border:1px solid var(--border);border-radius:9px;
+  padding:7px 8px 6px;display:flex;flex-direction:column;gap:4px;
+}
+/* label + value on one line */
+.ic-head{display:flex;align-items:baseline;gap:5px}
+.ic-lbl{font-size:9px;color:var(--text3);font-weight:700;letter-spacing:.06em;white-space:nowrap;flex-shrink:0}
+.ic-val{
+  font-size:24px;font-weight:900;
+  color:var(--accent);font-variant-numeric:tabular-nums;line-height:1;
+}
+.ic-val.sm{font-size:19px}
+.ic-unit{font-size:9px;color:var(--text3);margin-left:1px;font-weight:400}
+.ic-desc{font-size:8px;color:var(--text2);line-height:1.2;min-height:13px;text-align:center}
+
+/* ── ± buttons row ── */
+.ic-btns{display:flex;gap:4px}
+.ic-btn{
+  flex:1;height:26px;
+  background:var(--bg2);border:1px solid var(--border);
+  color:var(--text2);border-radius:6px;font-size:15px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;user-select:none;-webkit-user-select:none;
+  transition:background .1s,color .1s,transform .08s;
+}
+.ic-btn:active{background:var(--accent);color:#fff;transform:scale(.93)}
+
+/* ── Slider ── */
+.ic-rng{
+  -webkit-appearance:none;appearance:none;
+  width:100%;height:4px;border-radius:999px;background:var(--border);
+  outline:none;cursor:pointer;margin-top:8px;
+}
+.ic-rng::-webkit-slider-thumb{
+  -webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+  background:var(--accent);border:2px solid #fff;
+  box-shadow:0 1px 6px rgba(0,0,0,.5);cursor:pointer;
+  transition:transform .1s;
+}
+.ic-rng::-webkit-slider-thumb:active{transform:scale(1.2)}
+.ic-rng::-moz-range-thumb{
+  width:20px;height:20px;border-radius:50%;
+  background:var(--accent);border:2px solid #fff;cursor:pointer;
+}
+
+/* ══ Food detail ══ */
+.darea{flex-shrink:0;background:var(--bg2);border-bottom:2px solid var(--border);
+  overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1);max-height:0}
+.darea.show{max-height:175px}
+.di{padding:9px 12px 10px}
+.d-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.d-kb{display:flex;flex-direction:column;align-items:center;background:var(--panel);
+  border:1px solid var(--border);border-radius:10px;padding:6px 11px;min-width:72px}
+.d-kn{font-size:28px;font-weight:900;color:var(--accent);line-height:1;font-variant-numeric:tabular-nums}
+.d-ku{font-size:9px;color:var(--text3);font-weight:600;letter-spacing:.08em;margin-top:2px}
+.dbadge{display:none;margin-top:4px;align-self:flex-start;
+  font-size:9px;font-weight:800;padding:2px 7px;border-radius:5px;white-space:nowrap}
+.dbadge.show{display:inline-block}
+.dbadge.ok  {background:#003d22;color:#00d4aa;border:1px solid #00d4aa}
+.dbadge.over{background:#3d0f00;color:#ff6b6b;border:1px solid #ff6b6b}
+.dbadge.low {background:#2a1c00;color:#ffb347;border:1px solid #ffb347}
+.d-nb{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.d-cat{font-size:9px;color:var(--text3);font-weight:700;letter-spacing:.08em;margin-bottom:2px}
+.d-name{font-size:14px;font-weight:800;color:var(--text);line-height:1.2}
+/* PFC pie */
+.d-pie{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px}
+.pie-leg{display:flex;flex-direction:column;gap:1px;margin-top:2px}
+.pl{display:flex;align-items:center;gap:3px;font-size:7.5px;color:var(--text3);white-space:nowrap}
+.pl-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+.darea{flex-shrink:0;background:var(--bg2);border-bottom:2px solid var(--border);
+  overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1);max-height:0}
+.darea.show{max-height:210px}
+
+/* 候補バー（計算パネル外） */
+.mhint-bar{font-size:10px;color:var(--amber);background:#1e1800;border-bottom:1px solid #3a3000;
+  padding:5px 12px;line-height:1.4}
+
+/* 計算パネル内mhintは非表示 */
+.mhint{display:none!important}
+
+/* list-wrap: スクロール可能 */
+.list-wrap{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:var(--bg);display:flex;flex-direction:column}
+.list-wrap::-webkit-scrollbar{display:none}
+/* larea内スクロール不要（list-wrapが担う） */
+.larea{flex:1}
+
+/* Compact nutrient bars */
+.nbars{display:flex;flex-direction:column;gap:5px}
+.nr{display:flex;align-items:center;gap:6px}
+.nk{width:46px;font-size:9px;color:var(--text2);font-weight:700;flex-shrink:0}
+.nt{flex:1;height:7px;background:var(--border);border-radius:999px;overflow:hidden;max-width:55%}
+.nf{height:100%;border-radius:999px;transition:width .4s cubic-bezier(.4,0,.2,1)}
+.nf.p{background:linear-gradient(90deg,#2980b9,#3b9eff)}
+.nf.f{background:linear-gradient(90deg,#27ae60,#00d4aa)}
+.nf.c{background:linear-gradient(90deg,#e67e22,#ffb347)}
+.nf.s{background:linear-gradient(90deg,#8e44ad,#b888f8)}
+/* inline g + % */
+.nv{display:flex;align-items:baseline;gap:3px;flex-shrink:0;min-width:80px;justify-content:flex-end}
+.nv b{color:var(--text);font-size:13px;font-variant-numeric:tabular-nums}
+.nv .nu{font-size:9px;color:var(--text3)}
+.nv .np{font-size:9px;color:var(--text2);min-width:28px;text-align:right}
+.nosel{padding:13px;display:flex;align-items:center;gap:8px;color:var(--text3);font-size:12px}
+
+/* ══ List ══ */
+.larea{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:var(--bg)}
+.larea::-webkit-scrollbar{display:none}
+.ch{display:flex;align-items:center;padding:6px 12px;background:var(--bg);
+  position:sticky;top:0;z-index:5;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+.cl{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3)}
+.cn{font-size:9px;color:var(--text3);background:var(--panel);border-radius:4px;padding:1px 5px;margin-left:6px}
+.cv{font-size:9px;color:var(--text3);transition:transform .2s;margin-left:auto}
+.cb.col .cv{transform:rotate(-90deg)}
+.cb.col .cb-body{display:none}
+.cb.hidden{display:none}
+.dg{display:grid;grid-template-columns:1fr 1fr;border-left:1px solid var(--border)}
+.dc{display:flex;flex-direction:column;justify-content:space-between;padding:8px 10px;background:var(--bg);
+  border-right:1px solid var(--border);border-bottom:1px solid var(--border);min-height:52px;gap:4px;
+  cursor:pointer;transition:background .12s;-webkit-user-select:none;user-select:none}
+.dc:active{background:var(--panel)}
+.dc.on{background:var(--card-on);border-left:2px solid var(--accent)}
+.dc.mh{background:#0d1e0f}
+.dc.hidden{display:none}
+.dn{font-size:11px;font-weight:600;color:var(--text);line-height:1.25}
+.dk{font-size:14px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1}
+.dm{font-size:9px;color:var(--text3);font-variant-numeric:tabular-nums}
+.dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--accent2);margin-right:3px;vertical-align:middle}
+.nores{display:none;padding:32px 16px;text-align:center;color:var(--text3);font-size:12px}
+.nores.show{display:block}
+
+/* ── Desktop ── */
+@media(min-width:640px){
+  .app{flex-direction:row;flex-wrap:wrap;width:100vw;overflow:hidden}
+  .hdr{width:100%}
+  .left-col{flex-shrink:0;height:calc(100dvh - var(--hh) - var(--sat-t) - var(--sat-b));
+    display:flex;flex-direction:column;overflow:hidden}
+  .resizer{
+    flex-shrink:0;width:5px;cursor:col-resize;
+    background:var(--border);
+    height:calc(100dvh - var(--hh) - var(--sat-t) - var(--sat-b));
+    transition:background .15s;
+    position:relative;
+  }
+  .resizer:hover,.resizer.dragging{background:var(--accent)}
+  .resizer::after{
+    content:'';position:absolute;top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    width:1px;height:32px;
+    background:var(--text3);border-radius:2px;
+  }
+  .cpanel{max-height:none!important;overflow-y:auto;flex-shrink:0}
+  .darea{max-height:none!important;overflow-y:auto;flex-shrink:0}
+  .list-wrap{flex:1;min-width:0;height:calc(100dvh - var(--hh) - var(--sat-t) - var(--sat-b));overflow-x:hidden}
+  .ctgl{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header class="hdr">
+  <div class="logo">給食成分表<span>Diet Calc</span></div>
+  <div class="sw">
+    <input type="search" id="srch" placeholder="食種名で検索…" autocomplete="off" oninput="onSearch(this.value)">
+    <span class="sw-x" onclick="clearSearch()">✕</span>
+  </div>
+  <button class="ctgl on" id="ctgl" onclick="toggleCalc()">⚡計算</button>
+</header>
+
+<div class="left-col">
+
+<!-- ══ Calculator ══ -->
+<div class="cpanel open" id="cpanel">
+<div class="ci">
+
+  <!-- 性別 + BMI -->
+  <div class="sex-row">
+    <div class="sex-wrap">
+      <button class="sx on" id="sx-m" onclick="setSex('m')">男性</button>
+      <button class="sx"    id="sx-f" onclick="setSex('f')">女性</button>
+    </div>
+    <div class="bmi-chip">
+      <span class="bmi-num" id="r-bmi">—</span>
+      <span class="bmi-sub">BMI</span>
+    </div>
+  </div>
+
+  <!-- Row 1: 身長 体重 年齢 -->
+  <div class="card-row r3">
+
+    <!-- 身長 -->
+    <div class="icard">
+      <div class="ic-head"><span class="ic-lbl">身長</span><span class="ic-val"><span id="ht-v">165</span><span class="ic-unit">cm</span></span></div>
+      <div class="ic-btns">
+        <div class="ic-btn" id="ht-d">－</div>
+        <div class="ic-btn" id="ht-u">＋</div>
+      </div>
+      <input class="ic-rng" type="range" id="ht-r" min="100" max="200" step="1" value="165"
+             oninput="sliderNum('ht',+this.value)">
+    </div>
+
+    <!-- 体重 -->
+    <div class="icard">
+      <div class="ic-head"><span class="ic-lbl">体重</span><span class="ic-val"><span id="wt-v">60</span><span class="ic-unit">kg</span></span></div>
+      <div class="ic-btns">
+        <div class="ic-btn" id="wt-d">－</div>
+        <div class="ic-btn" id="wt-u">＋</div>
+      </div>
+      <input class="ic-rng" type="range" id="wt-r" min="20" max="150" step="1" value="60"
+             oninput="sliderNum('wt',+this.value)">
+    </div>
+
+    <!-- 年齢 -->
+    <div class="icard">
+      <div class="ic-head"><span class="ic-lbl">年齢</span><span class="ic-val"><span id="age-v">65</span><span class="ic-unit">歳</span></span></div>
+      <div class="ic-btns">
+        <div class="ic-btn" id="age-d">－</div>
+        <div class="ic-btn" id="age-u">＋</div>
+      </div>
+      <input class="ic-rng" type="range" id="age-r" min="0" max="100" step="1" value="65"
+             oninput="sliderNum('age',+this.value)">
+    </div>
+
+  </div><!-- /r3 -->
+
+  <!-- Row 2: 活動・侵襲・基礎代謝・必要エネルギー 4列 -->
+  <div class="card-row r4">
+
+    <div class="icard">
+      <div class="ic-head"><span class="ic-lbl">活動</span><span class="ic-val sm"><span id="act-v">1.2</span></span></div>
+      <div class="ic-desc" id="act-d2">ベッド上安静</div>
+      <div class="ic-btns">
+        <div class="ic-btn" id="act-d">－</div>
+        <div class="ic-btn" id="act-u">＋</div>
+      </div>
+      <input class="ic-rng" type="range" id="act-r" min="0" max="5" step="1" value="1"
+             oninput="sliderIdx('act',+this.value)">
+    </div>
+
+    <div class="icard">
+      <div class="ic-head"><span class="ic-lbl">侵襲</span><span class="ic-val sm"><span id="str-v">1.0</span></span></div>
+      <div class="ic-desc" id="str-d2">なし</div>
+      <div class="ic-btns">
+        <div class="ic-btn" id="str-d">－</div>
+        <div class="ic-btn" id="str-u">＋</div>
+      </div>
+      <input class="ic-rng" type="range" id="str-r" min="0" max="7" step="1" value="0"
+             oninput="sliderIdx('str',+this.value)">
+    </div>
+
+    <div class="icard rc">
+      <div class="cc-l">基礎代謝量</div>
+      <div class="cc-v" id="r-bmr">—</div>
+      <div class="cc-u">kcal/日</div>
+    </div>
+
+    <div class="icard rc hi">
+      <div class="cc-l">必要エネルギー</div>
+      <div class="cc-v" id="r-tee">—</div>
+      <div class="cc-u">kcal/日</div>
+    </div>
+
+  </div><!-- /r4 -->
+
+  <div class="mhint" id="mhint"></div>
+
+</div>
+</div><!-- /cpanel -->
+
+<!-- 候補ヒント（計算パネル外・食事リスト上） -->
+<div class="mhint-bar" id="mhint-bar" style="display:none"></div>
+
+<!-- ══ Food detail ══ -->
+<div class="darea" id="darea">
+  <div class="nosel" id="nosel"><span style="font-size:20px;opacity:.4">🍽</span>&ensp;食種をタップすると成分が表示されます</div>
+  <div class="di" id="di" style="display:none">
+    <div class="d-top">
+      <div class="d-kb">
+        <div class="d-kn" id="d-kn">—</div>
+        <div class="d-ku">kcal</div>
+      </div>
+      <div class="d-pie" id="d-pie"></div>
+      <div class="d-nb">
+        <div class="d-cat" id="d-cat">—</div>
+        <div class="d-name" id="d-name">—</div>
+        <div class="dbadge" id="dbadge"></div>
+      </div>
+    </div>
+    <div class="nbars">
+      <div class="nr"><span class="nk">たんぱく質</span><div class="nt"><div class="nf p" id="bp" style="width:0%"></div></div><span class="nv"><b id="vp">—</b><span class="nu">g</span><span class="np" id="pp">—</span></span></div>
+      <div class="nr"><span class="nk">脂　質</span>    <div class="nt"><div class="nf f" id="bf" style="width:0%"></div></div><span class="nv"><b id="vf">—</b><span class="nu">g</span><span class="np" id="fp">—</span></span></div>
+      <div class="nr"><span class="nk">炭水化物</span>  <div class="nt"><div class="nf c" id="bc" style="width:0%"></div></div><span class="nv"><b id="vc">—</b><span class="nu">g</span><span class="np" id="cp">—</span></span></div>
+      <div class="nr"><span class="nk">食　塩</span>    <div class="nt"><div class="nf s" id="bs" style="width:0%"></div></div><span class="nv"><b id="vs">—</b><span class="nu">g</span><span class="np"></span></span></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /left-col -->
+
+<div class="resizer" id="resizer"></div>
+
+<!-- 食事リスト全体をスクロール可能なラッパーで包む -->
+<div class="list-wrap" id="list-wrap">
+  <div class="larea" id="larea"></div>
+  <div class="nores" id="nores">該当する食種が見つかりません</div>
+</div>
+
+</div><!-- /app -->
+<script>
+const DB=[{"cat":"エネルギー調整食","name":"エネルギー調整食1200","kcal":1200,"prot":55,"fat":35,"carb":157,"salt":6},{"cat":"エネルギー調整食","name":"エネルギー調整食1280","kcal":1280,"prot":60,"fat":35,"carb":170,"salt":6},{"cat":"エネルギー調整食","name":"エネルギー調整食1360","kcal":1360,"prot":60,"fat":35,"carb":185,"salt":6},{"cat":"エネルギー調整食","name":"エネルギー調整食1440","kcal":1440,"prot":65,"fat":35,"carb":200,"salt":6},{"cat":"エネルギー調整食","name":"エネルギー調整食1520","kcal":1520,"prot":70,"fat":40,"carb":220,"salt":6},{"cat":"エネルギー調整食","name":"エネルギー調整食1600","kcal":1600,"prot":70,"fat":40,"carb":240,"salt":6},{"cat":"エネルギー調整食","name":"エネルギー調整食1680","kcal":1680,"prot":75,"fat":45,"carb":250,"salt":6},{"cat":"エネルギー調整食","name":"エネルギー調整食1760","kcal":1760,"prot":80,"fat":45,"carb":260,"salt":6},{"cat":"エネルギー調整食","name":"エネルギー調整食1840","kcal":1840,"prot":80,"fat":50,"carb":280,"salt":6},{"cat":"エネルギー調整食","name":"エネルギー調整食1920","kcal":1920,"prot":85,"fat":50,"carb":300,"salt":6},{"cat":"エネルギー調整食","name":"エネルギー調整食2000","kcal":2000,"prot":90,"fat":50,"carb":320,"salt":6},{"cat":"エネルギー調整食","name":"エネルギー調整食2080","kcal":2080,"prot":95,"fat":50,"carb":320,"salt":6},{"cat":"エネルギー調整食","name":"エネルギー調整食2160","kcal":2160,"prot":95,"fat":60,"carb":350,"salt":6},{"cat":"エネルギー調整食","name":"エネルギー調整食800ライト","kcal":800,"prot":35,"fat":20,"carb":120,"salt":3},{"cat":"塩分制限食","name":"調整食塩分6/1400","kcal":1400,"prot":50,"fat":40,"carb":250,"salt":5},{"cat":"塩分制限食","name":"調整食塩分6/1600","kcal":1600,"prot":60,"fat":45,"carb":270,"salt":5},{"cat":"塩分制限食","name":"調整食塩分6/1800","kcal":1800,"prot":75,"fat":55,"carb":320,"salt":5},{"cat":"塩分制限食","name":"調整食塩分ライト3g/800","kcal":800,"prot":30,"fat":22.5,"carb":135,"salt":2.5},{"cat":"塩分制限食","name":"心不全食塩分6/1400","kcal":1400,"prot":50,"fat":40,"carb":250,"salt":5},{"cat":"塩分制限食","name":"心不全食塩分6/1600","kcal":1600,"prot":60,"fat":45,"carb":270,"salt":5},{"cat":"塩分制限食","name":"心不全食塩分6/1800","kcal":1800,"prot":75,"fat":55,"carb":320,"salt":5},{"cat":"腎・糖尿病食","name":"腎調整食タンパク40/1400","kcal":1400,"prot":40,"fat":25,"carb":250,"salt":5},{"cat":"腎・糖尿病食","name":"腎調整食タンパク40/1600","kcal":1600,"prot":40,"fat":35,"carb":300,"salt":5},{"cat":"腎・糖尿病食","name":"腎調整食タンパク40/1800","kcal":1800,"prot":40,"fat":30,"carb":300,"salt":5},{"cat":"腎・糖尿病食","name":"腎調整食タンパク50/1800","kcal":1800,"prot":50,"fat":50,"carb":320,"salt":5},{"cat":"腎・糖尿病食","name":"腎調整食タンパク50/2000","kcal":2000,"prot":50,"fat":50,"carb":370,"salt":5},{"cat":"腎・糖尿病食","name":"糖腎調整食P40/1600","kcal":1600,"prot":40,"fat":25,"carb":250,"salt":5},{"cat":"腎・糖尿病食","name":"糖腎調整食P40/1800","kcal":1800,"prot":40,"fat":30,"carb":300,"salt":5},{"cat":"腎・糖尿病食","name":"糖腎調整食P40/1800(2)","kcal":1800,"prot":40,"fat":50,"carb":300,"salt":5},{"cat":"腎・糖尿病食","name":"糖腎調整食P50/1800","kcal":1800,"prot":50,"fat":40,"carb":320,"salt":5},{"cat":"腎・糖尿病食","name":"糖腎調整食P50/2000","kcal":2000,"prot":50,"fat":55,"carb":370,"salt":5},{"cat":"腎・糖尿病食","name":"透析食タンパク50/1600","kcal":1600,"prot":50,"fat":55,"carb":230,"salt":5},{"cat":"腎・糖尿病食","name":"透析食タンパク60/2000","kcal":2000,"prot":60,"fat":55,"carb":320,"salt":5},{"cat":"肝臓食","name":"肝臓食A1600","kcal":1600,"prot":60,"fat":30,"carb":270,"salt":10},{"cat":"肝臓食","name":"肝臓食B1800","kcal":1800,"prot":70,"fat":35,"carb":300,"salt":10},{"cat":"肝臓食","name":"肝臓食C2000","kcal":2000,"prot":75,"fat":40,"carb":330,"salt":10},{"cat":"肝臓食","name":"肝臓食800","kcal":800,"prot":30,"fat":15,"carb":135,"salt":5},{"cat":"肝臓食","name":"肝調整食タンパク20/1200","kcal":1200,"prot":20,"fat":10,"carb":150,"salt":5},{"cat":"肝臓食","name":"肝調整食タンパク40/1400","kcal":1400,"prot":40,"fat":25,"carb":190,"salt":5},{"cat":"肝臓食","name":"肝調整食タンパク40/1200","kcal":1200,"prot":40,"fat":18,"carb":150,"salt":5},{"cat":"貧血食","name":"貧血食1400","kcal":1400,"prot":50,"fat":40,"carb":300,"salt":10},{"cat":"貧血食","name":"貧血食1600","kcal":1600,"prot":60,"fat":45,"carb":300,"salt":10},{"cat":"貧血食","name":"貧血食1800","kcal":1800,"prot":70,"fat":50,"carb":330,"salt":10},{"cat":"貧血食","name":"貧血食800","kcal":800,"prot":30,"fat":22.5,"carb":150,"salt":5},{"cat":"膵・胆食","name":"膵・胆食Ⅰ500","kcal":500,"prot":5,"fat":1,"carb":120,"salt":2},{"cat":"膵・胆食","name":"膵・胆食Ⅱ800","kcal":800,"prot":15,"fat":5,"carb":170,"salt":5},{"cat":"膵・胆食","name":"膵・胆食Ⅲ1200","kcal":1200,"prot":40,"fat":10,"carb":230,"salt":7},{"cat":"膵・胆食","name":"膵・胆食Ⅳ1400","kcal":1400,"prot":60,"fat":20,"carb":250,"salt":10},{"cat":"膵・胆食","name":"膵・胆食Ⅳライト700","kcal":700,"prot":30,"fat":10,"carb":125,"salt":5},{"cat":"検査食","name":"注腸検査食","kcal":835,"prot":19.3,"fat":16.5,"carb":144,"salt":3.1},{"cat":"検査食","name":"CT食","kcal":331,"prot":12.2,"fat":10.3,"carb":37.1,"salt":0.9},{"cat":"消化器術後食","name":"消)術後食流動400","kcal":400,"prot":15,"fat":9,"carb":50,"salt":2},{"cat":"消化器術後食","name":"消)術後食三分1200","kcal":1200,"prot":50,"fat":30,"carb":175,"salt":7},{"cat":"消化器術後食","name":"消)術後食三分600","kcal":600,"prot":25,"fat":15,"carb":87.5,"salt":3},{"cat":"消化器術後食","name":"消)術後食五分1400","kcal":1400,"prot":55,"fat":32,"carb":220,"salt":7},{"cat":"消化器術後食","name":"消)術後食五分700","kcal":700,"prot":27.5,"fat":16,"carb":110,"salt":3},{"cat":"消化器術後食","name":"消)術後食七分1760","kcal":1760,"prot":60,"fat":30,"carb":250,"salt":10},{"cat":"消化器術後食","name":"消)術後食全粥1870","kcal":1870,"prot":60,"fat":30,"carb":270,"salt":10},{"cat":"消化器術後食","name":"消)術後食全粥935","kcal":935,"prot":30,"fat":15,"carb":135,"salt":5},{"cat":"消化器術後食","name":"消)術後食軟飯2040","kcal":2040,"prot":60,"fat":30,"carb":300,"salt":10},{"cat":"消化器術後食","name":"消)術後食軟飯1020","kcal":1020,"prot":30,"fat":15,"carb":150,"salt":5},{"cat":"消化器術後食","name":"消)術後食米飯2080","kcal":2080,"prot":60,"fat":30,"carb":320,"salt":10},{"cat":"消化器術後食","name":"消)術後食米飯1040","kcal":1040,"prot":30,"fat":15,"carb":160,"salt":5},{"cat":"潰瘍食","name":"潰瘍食流動340","kcal":400,"prot":15,"fat":9,"carb":50,"salt":5},{"cat":"潰瘍食","name":"潰瘍食三分1320","kcal":1200,"prot":50,"fat":30,"carb":175,"salt":7},{"cat":"潰瘍食","name":"潰瘍食三分ライト660","kcal":600,"prot":25,"fat":15,"carb":87.5,"salt":3},{"cat":"潰瘍食","name":"潰瘍食五分1360","kcal":1400,"prot":55,"fat":32,"carb":220,"salt":7},{"cat":"潰瘍食","name":"潰瘍食七分1760","kcal":700,"prot":27.5,"fat":16,"carb":110,"salt":3},{"cat":"潰瘍食","name":"潰瘍食七分ライト880","kcal":880,"prot":37,"fat":25,"carb":125,"salt":3},{"cat":"潰瘍食","name":"潰瘍食全粥1870","kcal":1870,"prot":75,"fat":50,"carb":270,"salt":10},{"cat":"潰瘍食","name":"潰瘍食軟飯2040","kcal":2040,"prot":80,"fat":50,"carb":300,"salt":10},{"cat":"潰瘍食","name":"潰瘍食軟飯ライト1020","kcal":1020,"prot":40,"fat":25,"carb":150,"salt":5},{"cat":"潰瘍食","name":"潰瘍食米飯2080","kcal":2080,"prot":80,"fat":50,"carb":320,"salt":10},{"cat":"潰瘍食","name":"潰瘍食米飯ライト1040","kcal":1040,"prot":40,"fat":25,"carb":160,"salt":5},{"cat":"腸炎食","name":"腸炎食流動400","kcal":400,"prot":15,"fat":9,"carb":70,"salt":3},{"cat":"腸炎食","name":"腸炎食三分500","kcal":500,"prot":15,"fat":8,"carb":100,"salt":3},{"cat":"腸炎食","name":"腸炎食五分700","kcal":700,"prot":40,"fat":20,"carb":100,"salt":7},{"cat":"腸炎食","name":"腸炎食五分350","kcal":350,"prot":10,"fat":10,"carb":50,"salt":3.5},{"cat":"腸炎食","name":"腸炎食七分1100","kcal":1100,"prot":45,"fat":22,"carb":150,"salt":7},{"cat":"腸炎食","name":"腸炎食七分550","kcal":550,"prot":22.5,"fat":11,"carb":75,"salt":3.5},{"cat":"腸炎食","name":"腸炎食全粥1400","kcal":1400,"prot":45,"fat":22,"carb":150,"salt":7},{"cat":"腸炎食","name":"腸炎食全粥700","kcal":700,"prot":22.5,"fat":11,"carb":75,"salt":3.5},{"cat":"腸炎食","name":"腸炎食軟飯1900","kcal":1900,"prot":50,"fat":22,"carb":290,"salt":7},{"cat":"腸炎食","name":"腸炎食軟飯700","kcal":700,"prot":25,"fat":11,"carb":145,"salt":3.5},{"cat":"腸炎食","name":"腸炎食米飯1900","kcal":1900,"prot":50,"fat":22,"carb":290,"salt":7},{"cat":"腸炎食","name":"腸炎食米飯950","kcal":950,"prot":25,"fat":11,"carb":145,"salt":3.5},{"cat":"低残渣食","name":"低残渣食1300","kcal":1300,"prot":50,"fat":14,"carb":320,"salt":7},{"cat":"低残渣食","name":"低残渣食600","kcal":650,"prot":25,"fat":7,"carb":160,"salt":3.5},{"cat":"潰瘍性大腸炎食","name":"潰瘍性大腸炎食流動370","kcal":370,"prot":8,"fat":1.8,"carb":78,"salt":2},{"cat":"潰瘍性大腸炎食","name":"潰瘍性大腸炎食三分600","kcal":600,"prot":14,"fat":7,"carb":165,"salt":5},{"cat":"潰瘍性大腸炎食","name":"潰瘍性大腸炎食五分1000","kcal":1000,"prot":35,"fat":12,"carb":190,"salt":5},{"cat":"潰瘍性大腸炎食","name":"潰瘍性大腸炎食七分1200","kcal":1200,"prot":50,"fat":30,"carb":165,"salt":10},{"cat":"潰瘍性大腸炎食","name":"潰瘍性大腸炎食全粥1500","kcal":1500,"prot":70,"fat":40,"carb":165,"salt":10},{"cat":"潰瘍性大腸炎食","name":"潰瘍性大腸炎食軟飯1800","kcal":1800,"prot":80,"fat":45,"carb":290,"salt":10},{"cat":"潰瘍性大腸炎食","name":"潰瘍性大腸炎食米飯1800","kcal":1800,"prot":80,"fat":45,"carb":290,"salt":10},{"cat":"クローン食","name":"クローン食流動370","kcal":370,"prot":8,"fat":1.8,"carb":78,"salt":2},{"cat":"クローン食","name":"クローン食三分600","kcal":600,"prot":14,"fat":7,"carb":165,"salt":5},{"cat":"クローン食","name":"クローン食五分1000","kcal":1000,"prot":35,"fat":12,"carb":190,"salt":5},{"cat":"クローン食","name":"クローン食全粥1200","kcal":1200,"prot":30,"fat":15,"carb":165,"salt":10},{"cat":"クローン食","name":"クローン食全粥1500","kcal":1500,"prot":70,"fat":40,"carb":165,"salt":10},{"cat":"クローン食","name":"クローン食軟飯1800","kcal":1800,"prot":80,"fat":45,"carb":290,"salt":10},{"cat":"クローン食","name":"クローン食米飯1800","kcal":1800,"prot":80,"fat":45,"carb":290,"salt":10},{"cat":"流動食・粥食","name":"流動食700","kcal":700,"prot":25,"fat":18,"carb":110,"salt":5},{"cat":"流動食・粥食","name":"三分粥1200","kcal":1200,"prot":50,"fat":30,"carb":170,"salt":5},{"cat":"流動食・粥食","name":"三分粥600","kcal":600,"prot":25,"fat":15,"carb":85,"salt":3},{"cat":"流動食・粥食","name":"五分粥1300","kcal":1300,"prot":55,"fat":30,"carb":200,"salt":5},{"cat":"流動食・粥食","name":"五分粥650","kcal":650,"prot":27.5,"fat":15,"carb":100,"salt":3},{"cat":"流動食・粥食","name":"七分粥1600","kcal":1600,"prot":70,"fat":45,"carb":240,"salt":10},{"cat":"流動食・粥食","name":"七分粥800","kcal":800,"prot":35,"fat":22.5,"carb":120,"salt":5},{"cat":"流動食・粥食","name":"全粥食1400","kcal":1400,"prot":50,"fat":40,"carb":220,"salt":10},{"cat":"流動食・粥食","name":"全粥食1700","kcal":1700,"prot":65,"fat":45,"carb":250,"salt":10},{"cat":"流動食・粥食","name":"全粥食850","kcal":850,"prot":32,"fat":22,"carb":125,"salt":5},{"cat":"嚥下食","name":"嚥下開始食ゼリー240","kcal":240,"prot":10.5,"fat":6.6,"carb":38.6,"salt":0},{"cat":"嚥下食","name":"嚥下食Ⅰ流動550","kcal":550,"prot":20,"fat":0.6,"carb":120,"salt":1},{"cat":"嚥下食","name":"嚥下食Ⅰライト275","kcal":275,"prot":10,"fat":0.3,"carb":60,"salt":0.5},{"cat":"嚥下食","name":"嚥下食ⅡミキサーⅡ1200","kcal":1200,"prot":50,"fat":10,"carb":220,"salt":7},{"cat":"嚥下食","name":"嚥下食Ⅱミキサー600","kcal":600,"prot":25,"fat":5,"carb":110,"salt":3.5},{"cat":"嚥下食","name":"嚥下食Ⅲきざみ1200","kcal":1200,"prot":50,"fat":10,"carb":220,"salt":7},{"cat":"嚥下食","name":"嚥下食Ⅲきざみ600","kcal":600,"prot":25,"fat":10,"carb":110,"salt":3.5},{"cat":"嚥下食","name":"嚥下食Ⅳ-ロ大1200","kcal":1200,"prot":50,"fat":10,"carb":220,"salt":7},{"cat":"嚥下食","name":"嚥下食Ⅳ-ロ大ライト600","kcal":600,"prot":25,"fat":5,"carb":110,"salt":3.5},{"cat":"常食","name":"常食1400","kcal":1400,"prot":55,"fat":44,"carb":200,"salt":10},{"cat":"常食","name":"常食1600","kcal":1600,"prot":60,"fat":45,"carb":240,"salt":10},{"cat":"常食","name":"常食1700","kcal":1700,"prot":60,"fat":45,"carb":260,"salt":10},{"cat":"常食","name":"常食1800","kcal":1800,"prot":60,"fat":45,"carb":280,"salt":10},{"cat":"常食","name":"常食2000","kcal":2000,"prot":70,"fat":46,"carb":320,"salt":10},{"cat":"常食","name":"常食800","kcal":800,"prot":30,"fat":22.5,"carb":120,"salt":5},{"cat":"常食","name":"常食塩分6/1400","kcal":1400,"prot":50,"fat":45,"carb":250,"salt":6},{"cat":"常食","name":"常食塩分6/1600","kcal":1600,"prot":60,"fat":40,"carb":270,"salt":6},{"cat":"常食","name":"常食塩分6/2000","kcal":2000,"prot":75,"fat":45,"carb":320,"salt":6},{"cat":"常食","name":"学童食(6～9歳)1400","kcal":1400,"prot":50,"fat":35,"carb":200,"salt":8},{"cat":"常食","name":"学童食(10～12歳)1600","kcal":1600,"prot":60,"fat":50,"carb":240,"salt":10},{"cat":"常食","name":"幼児食(1.7～2歳)1000","kcal":1000,"prot":40,"fat":20,"carb":150,"salt":7}];
+
+const ACT=[
+  [1.0,'寝たきり'],[1.2,'ベッド上安静'],[1.3,'ベッド外活動あり'],
+  [1.5,'軽労働'],[1.7,'中等度労働'],[1.9,'重労働'],
+];
+const STR=[
+  [1.0,'なし'],[1.1,'軽度手術'],[1.2,'中等度感染'],[1.3,'大手術'],
+  [1.4,'重症感染'],[1.5,'多発外傷'],[1.7,'重症熱傷'],[2.0,'超重症熱傷'],
+];
+
+const MP=95,MF=60,MC=370,MS=10;
+let sex='m', ht=165, wt=60, age=65, aI=1, sI=0, selIdx=null, tgt=null;
+
+/* ── Generic numeric stepper with long-press ── */
+function bindNum(key, min, max, getV, setV){
+  const dBtn=document.getElementById(key+'-d');
+  const uBtn=document.getElementById(key+'-u');
+  let timer, iv;
+  function go(dir){
+    setV(Math.min(max,Math.max(min,getV()+dir)));
+    timer=setTimeout(()=>{iv=setInterval(()=>{
+      const nv=Math.min(max,Math.max(min,getV()+dir));
+      setV(nv); if(nv===min||nv===max)clearInterval(iv);
+    },80);},380);
+  }
+  function stop(){ clearTimeout(timer); clearInterval(iv); }
+  dBtn.addEventListener('pointerdown',()=>go(-1));
+  uBtn.addEventListener('pointerdown',()=>go(+1));
+  ['pointerup','pointerleave','pointercancel'].forEach(e=>{
+    dBtn.addEventListener(e,stop); uBtn.addEventListener(e,stop);
+  });
+}
+
+/* ── Index stepper ── */
+function bindIdx(key, len, getI, setI){
+  document.getElementById(key+'-d').addEventListener('click',()=>setI(Math.max(0,getI()-1)));
+  document.getElementById(key+'-u').addEventListener('click',()=>setI(Math.min(len-1,getI()+1)));
+}
+
+/* ── Setters ── */
+function setHt(v){ ht=v; document.getElementById('ht-v').textContent=v; document.getElementById('ht-r').value=v; calcAll(); }
+function setWt(v){ wt=v; document.getElementById('wt-v').textContent=v; document.getElementById('wt-r').value=v; calcAll(); }
+function setAge(v){ age=v; document.getElementById('age-v').textContent=v; document.getElementById('age-r').value=v; calcAll(); }
+function setAI(i){
+  aI=i;
+  document.getElementById('act-r').value=i;
+  document.getElementById('act-v').textContent=ACT[i][0].toFixed(1);
+  document.getElementById('act-d2').textContent=ACT[i][1];
+  calcAll();
+}
+function setSI(i){
+  sI=i;
+  document.getElementById('str-r').value=i;
+  document.getElementById('str-v').textContent=STR[i][0].toFixed(1);
+  document.getElementById('str-d2').textContent=STR[i][1];
+  calcAll();
+}
+function sliderNum(k,v){ if(k==='ht')setHt(v); else if(k==='wt')setWt(v); else setAge(v); }
+function sliderIdx(k,v){ if(k==='act')setAI(+v); else setSI(+v); }
+function setSex(s){
+  sex=s;
+  document.getElementById('sx-m').classList.toggle('on',s==='m');
+  document.getElementById('sx-f').classList.toggle('on',s==='f');
+  calcAll();
+}
+function toggleCalc(){
+  const p=document.getElementById('cpanel'),b=document.getElementById('ctgl');
+  p.classList.toggle('open'); b.classList.toggle('on',p.classList.contains('open'));
+}
+
+/* ── Harris-Benedict ── */
+function calcAll(){
+  const bmi=wt/((ht/100)**2);
+  const bEl=document.getElementById('r-bmi');
+  bEl.textContent=bmi.toFixed(1);
+  bEl.style.color=bmi<18.5?'#ffb347':bmi<25?'#00d4aa':bmi<30?'#ffb347':'#ff6b6b';
+
+  const bmr=sex==='m'
+    ? 66.47+13.75*wt+5.0*ht-6.76*age
+    : 655.1+9.56*wt+1.85*ht-4.68*age;
+  tgt=Math.round(bmr*ACT[aI][0]*STR[sI][0]);
+  document.getElementById('r-bmr').textContent=Math.round(bmr);
+  document.getElementById('r-tee').textContent=tgt;
+
+  const hits=DB.filter(d=>Math.abs(d.kcal-tgt)<=100);
+  const mh=document.getElementById('mhint-bar');
+  if(hits.length){
+    mh.textContent=`✓ 候補 ${hits.length}件 — ${hits.slice(0,3).map(d=>d.name).join('、')}${hits.length>3?'…':''}`;
+    mh.style.display='block';
+  } else { mh.style.display='none'; }
+  refreshDots(); updateBadge();
+}
+
+function refreshDots(){
+  DB.forEach((d,i)=>{
+    const c=document.getElementById(`dc-${i}`); if(!c)return;
+    const m=tgt!==null&&Math.abs(d.kcal-tgt)<=100;
+    c.classList.toggle('mh',m&&i!==selIdx);
+    const ne=c.querySelector('.dn'), dot=ne.querySelector('.dot');
+    if(m&&!dot){const s=document.createElement('span');s.className='dot';ne.prepend(s);}
+    else if(!m&&dot){dot.remove();}
+  });
+}
+
+function updateBadge(){
+  if(selIdx===null)return;
+  const d=DB[selIdx], badge=document.getElementById('dbadge');
+  if(tgt!==null){
+    const diff=d.kcal-tgt;
+    if(Math.abs(diff)<=100){badge.textContent='✓ 推奨範囲内';badge.className='dbadge ok show';}
+    else if(diff>0){badge.textContent=`+${diff}kcal 超過`;badge.className='dbadge over show';}
+    else{badge.textContent=`${diff}kcal 不足`;badge.className='dbadge low show';}
+  } else { badge.className='dbadge'; }
+}
+
+/* ── List ── */
+function buildUI(){
+  const area=document.getElementById('larea');
+  const cats={};
+  DB.forEach((d,i)=>{ if(!cats[d.cat])cats[d.cat]=[]; cats[d.cat].push(i); });
+  Object.entries(cats).forEach(([cat,ids])=>{
+    const bl=document.createElement('div'); bl.className='cb col'; bl.dataset.cat=cat;
+    const hd=document.createElement('div'); hd.className='ch';
+    hd.innerHTML=`<span class="cl">${cat}</span><span class="cn">${ids.length}</span><span class="cv">▼</span>`;
+    hd.onclick=()=>bl.classList.toggle('col');
+    bl.appendChild(hd);
+    const body=document.createElement('div'); body.className='cb-body';
+    const grid=document.createElement('div'); grid.className='dg';
+    ids.forEach(i=>{
+      const d=DB[i]; const c=document.createElement('div');
+      c.className='dc'; c.id=`dc-${i}`;
+      c.innerHTML=`<div class="dn">${d.name}</div>
+        <div class="dk">${d.kcal}<span style="font-size:9px;font-weight:400;color:var(--text3);margin-left:2px">kcal</span></div>
+        <div class="dm">P${d.prot} F${d.fat} C${d.carb} 塩${d.salt}</div>`;
+      c.addEventListener('click',()=>selectItem(i));
+      grid.appendChild(c);
+    });
+    body.appendChild(grid); bl.appendChild(body); area.appendChild(bl);
+  });
+}
+
+function selectItem(i){
+  if(selIdx!==null){ const p=document.getElementById(`dc-${selIdx}`); if(p)p.classList.remove('on'); }
+  if(selIdx===i){ selIdx=null; hideDetail(); refreshDots(); return; }
+  selIdx=i;
+  const c=document.getElementById(`dc-${i}`); if(c){c.classList.add('on');c.classList.remove('mh');}
+  showDetail(DB[i]); refreshDots();
+}
+
+function makePieSVG(prot, fat, carb, size){
+  const ckcal=carb*4, pkcal=prot*4, fkcal=fat*9;
+  const tot=ckcal+pkcal+fkcal||1;
+  const slices=[
+    {r:ckcal/tot, c:'#ffb347', l:'糖 '+Math.round(ckcal/tot*100)+'%'},
+    {r:fkcal/tot, c:'#00d4aa', l:'脂 '+Math.round(fkcal/tot*100)+'%'},
+    {r:pkcal/tot, c:'#3b9eff', l:'蛋 '+Math.round(pkcal/tot*100)+'%'},
+  ];
+  const cx=size/2, cy=size/2, rad=size/2-2;
+  let ang=-Math.PI/2, paths='';
+  slices.forEach(s=>{
+    if(s.r<=0) return;
+    const end=ang+s.r*2*Math.PI;
+    const x1=cx+rad*Math.cos(ang), y1=cy+rad*Math.sin(ang);
+    const x2=cx+rad*Math.cos(end), y2=cy+rad*Math.sin(end);
+    const lg=s.r>0.5?1:0;
+    paths+=`<path d="M${cx},${cy} L${x1.toFixed(1)},${y1.toFixed(1)} A${rad},${rad} 0 ${lg},1 ${x2.toFixed(1)},${y2.toFixed(1)} Z" fill="${s.c}" stroke="#0f1923" stroke-width="1"/>`;
+    ang=end;
+  });
+  const legs=slices.map(s=>`<div class="pl"><span class="pl-dot" style="background:${s.c}"></span>${s.l}</div>`).join('');
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${paths}</svg><div class="pie-leg">${legs}</div>`;
+}
+
+function showDetail(d){
+  document.getElementById('darea').classList.add('show');
+  document.getElementById('nosel').style.display='none';
+  document.getElementById('di').style.display='block';
+  document.getElementById('d-kn').textContent=d.kcal;
+  document.getElementById('d-cat').textContent=d.cat;
+  document.getElementById('d-name').textContent=d.name;
+  document.getElementById('d-pie').innerHTML=makePieSVG(d.prot,d.fat,d.carb,64);
+  document.getElementById('vp').textContent=d.prot;
+  document.getElementById('vf').textContent=d.fat;
+  document.getElementById('vc').textContent=d.carb;
+  document.getElementById('vs').textContent=d.salt;
+  // CPF % of total kcal (P:4kcal/g, F:9kcal/g, C:4kcal/g)
+  if(d.kcal>0){
+    document.getElementById('pp').textContent=Math.round(d.prot*4/d.kcal*100)+'%';
+    document.getElementById('fp').textContent=Math.round(d.fat*9/d.kcal*100)+'%';
+    document.getElementById('cp').textContent=Math.round(d.carb*4/d.kcal*100)+'%';
+  }
+  updateBadge();
+  requestAnimationFrame(()=>{
+    document.getElementById('bp').style.width=Math.min(100,d.prot/MP*100)+'%';
+    document.getElementById('bf').style.width=Math.min(100,d.fat /MF*100)+'%';
+    document.getElementById('bc').style.width=Math.min(100,d.carb/MC*100)+'%';
+    document.getElementById('bs').style.width=Math.min(100,d.salt/MS*100)+'%';
+  });
+}
+
+function hideDetail(){
+  document.getElementById('darea').classList.remove('show');
+  setTimeout(()=>{
+    document.getElementById('nosel').style.display='';
+    document.getElementById('di').style.display='none';
+    document.getElementById('dbadge').className='dbadge';
+  },300);
+}
+
+function onSearch(q){
+  q=q.trim().toLowerCase(); let any=false;
+  document.querySelectorAll('.cb').forEach(bl=>{
+    let has=false;
+    bl.querySelectorAll('.dc').forEach(c=>{
+      const i=parseInt(c.id.replace('dc-',''));
+      const ok=!q||DB[i].name.toLowerCase().includes(q)||DB[i].cat.toLowerCase().includes(q);
+      c.classList.toggle('hidden',!ok); if(ok)has=true;
+    });
+    bl.classList.toggle('hidden',!has);
+    if(has){any=true; if(q)bl.classList.remove('col');}
+  });
+  document.getElementById('nores').classList.toggle('show',!any);
+}
+function clearSearch(){ const inp=document.getElementById('srch'); inp.value=''; onSearch(''); inp.focus(); }
+
+/* ── Init ── */
+bindNum('ht', 100, 200, ()=>ht, setHt);
+bindNum('wt', 20,  150, ()=>wt, setWt);
+bindNum('age', 0,  100, ()=>age, setAge);
+bindIdx('act', ACT.length, ()=>aI, setAI);
+bindIdx('str', STR.length, ()=>sI, setSI);
+buildUI();
+calcAll();
+
+/* ── Resizer ── */
+(function(){
+  const BREAK = 640;
+  const resizer = document.getElementById('resizer');
+  const leftCol = document.querySelector('.left-col');
+  if(!resizer || !leftCol) return;
+
+  function isDesktop(){ return window.innerWidth >= BREAK; }
+
+  function applyWidth(){
+    if(!isDesktop()){
+      leftCol.style.width = '';  // モバイルはCSSに任せる
+      return;
+    }
+    const saved = localStorage.getItem('leftColW');
+    leftCol.style.width = (saved ? parseInt(saved) : 310) + 'px';
+  }
+
+  applyWidth();
+  window.addEventListener('resize', applyWidth);
+
+  let startX, startW, dragging = false;
+
+  function onDown(e){
+    if(!isDesktop()) return;
+    dragging = true;
+    startX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+    startW = leftCol.getBoundingClientRect().width;
+    resizer.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  }
+  function onMove(e){
+    if(!dragging) return;
+    const cx = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+    const nw = Math.min(Math.max(200, startW + (cx - startX)), window.innerWidth - 200);
+    leftCol.style.width = nw + 'px';
+  }
+  function onUp(){
+    if(!dragging) return;
+    dragging = false;
+    resizer.classList.remove('dragging');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+    if(isDesktop()) localStorage.setItem('leftColW', parseInt(leftCol.style.width));
+  }
+
+  resizer.addEventListener('mousedown', onDown);
+  resizer.addEventListener('touchstart', onDown, {passive: false});
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('touchmove', onMove, {passive: false});
+  document.addEventListener('mouseup', onUp);
+  document.addEventListener('touchend', onUp);
+
+  resizer.addEventListener('dblclick', ()=>{
+    if(!isDesktop()) return;
+    leftCol.style.width = '310px';
+    localStorage.removeItem('leftColW');
+  });
+})();
+</script>
+</body>
+</html>
