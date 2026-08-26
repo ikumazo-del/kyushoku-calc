@@ -223,6 +223,36 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
   .list-wrap{flex:1;min-width:0;height:calc(100dvh - var(--hh) - var(--sat-t) - var(--sat-b));overflow-x:hidden}
   .ctgl{display:none}
 }
+
+/* ── 経腸栄養統合 ── */
+.ncard{display:flex!important;align-items:center;gap:8px}
+.ncard .nsub{font-size:9.5px;color:var(--text3);margin-top:2px;line-height:1.4}
+.nctrl{flex-shrink:0}
+.nqty{display:flex;align-items:center;gap:4px}
+.naddb{width:28px;height:28px;border-radius:7px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--accent);cursor:pointer}
+.naddb:active{background:var(--accent);color:#fff}
+.nqb{width:24px;height:24px;border-radius:6px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--text2);cursor:pointer}
+.nqb:active{background:var(--accent);color:#fff}
+.nqn{min-width:20px;text-align:center;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}
+.nqu{font-size:8px;color:var(--text3)}
+.ncard.non{border-color:var(--accent)!important}
+.ntag{font-size:8px;padding:1px 4px;border-radius:4px;background:var(--bg);color:var(--text2);border:1px solid var(--border);margin-left:2px;white-space:nowrap}
+.d-name{font-size:15px!important;font-weight:800!important;line-height:1.3}
+.d-extra{margin-top:10px;border-top:1px solid var(--border);padding-top:9px}
+.stitle{font-size:9px;font-weight:800;color:var(--text2);letter-spacing:.05em}
+.elec{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.ecard{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:6px 8px}
+.el-l{font-size:9px;color:var(--text3);font-weight:600}
+.el-v{font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--text);margin:1px 0}
+.euni{font-size:9px;margin-left:1px}
+.el-sub{font-size:7.5px;color:var(--text3);line-height:1.3}
+.est{color:var(--amber);font-size:11px;font-weight:600;margin-left:2px}
+.badge2{display:inline-block;font-size:8px;padding:0 5px;border-radius:4px;margin-left:3px;background:#003d22;color:#00d4aa}
+.cmt{display:flex;flex-direction:column;gap:5px;margin-top:5px}
+.ci2{display:flex;gap:6px;font-size:11px;color:var(--text);align-items:flex-start;line-height:1.45}
+.ci2 b{color:var(--accent)}
+.warn{background:#3d0f00;border:1px solid var(--accent3);color:#ff9a9a;border-radius:8px;padding:8px 10px;font-size:11px;line-height:1.45;margin-top:8px}
+.warn b{color:#ff6b6b}
 </style>
 </head>
 <body>
@@ -362,6 +392,18 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
       <div class="nr"><span class="nk">炭水化物</span>  <div class="nt"><div class="nf c" id="bc" style="width:0%"></div></div><span class="nv"><b id="vc">—</b><span class="nu">g</span><span class="np" id="cp">—</span></span></div>
       <div class="nr"><span class="nk">食　塩</span>    <div class="nt"><div class="nf s" id="bs" style="width:0%"></div></div><span class="nv"><b id="vs">—</b><span class="nu">g</span><span class="np"></span></span></div>
     </div>
+    <div class="d-extra" id="d-extra" style="display:none">
+      <div class="stitle">電解質・水分（経腸栄養/補助食品）</div>
+      <div class="elec">
+        <div class="ecard"><div class="el-l">Na<span class="badge2">確定</span></div><div class="el-v"><span id="e-na">—</span><span class="euni">mg</span></div><div class="el-sub">食塩から計算＋栄養剤実測</div></div>
+        <div class="ecard"><div class="el-l">水分<span class="badge2">実測</span></div><div class="el-v"><span id="e-water">—</span><span class="euni">mL</span></div><div class="el-sub">栄養剤由来（溶解水は別）</div></div>
+        <div class="ecard"><div class="el-l">K カリウム</div><div class="el-v" id="e-k">—</div><div class="el-sub">栄養剤=実測／<span style="color:var(--amber)">給食=目安</span></div></div>
+        <div class="ecard"><div class="el-l">P リン</div><div class="el-v" id="e-p">—</div><div class="el-sub">栄養剤=実測／<span style="color:var(--amber)">給食=目安</span></div></div>
+      </div>
+      <div class="stitle" style="margin-top:8px">コメント</div>
+      <div class="cmt" id="d-cmt"></div>
+      <div class="warn" id="d-warn" style="display:none"></div>
+    </div>
   </div>
 </div>
 
@@ -388,8 +430,34 @@ const STR=[
   [1.4,'重症感染'],[1.5,'多発外傷'],[1.7,'重症熱傷'],[2.0,'超重症熱傷'],
 ];
 
+const NUTR=[
+ {name:'メイバランスミニ',type:'食品',kcal:200,prot:7.5,fat:5.6,carb:31.8,salt:0.33,na:130,k:180,ph:140,water:93.6,tags:['液体'],al:'乳・大豆'},
+ {name:'メイバランスぎゅっとmini',type:'食品',kcal:200,prot:7.5,fat:5.6,carb:31.8,salt:0.33,na:130,k:180,ph:140,water:68.9,tags:['濃縮'],al:'乳・大豆'},
+ {name:'ラクフィア200',type:'食品',kcal:200,prot:8.0,fat:6.0,carb:30.0,salt:1.00,na:394,k:240,ph:120,water:170,tags:['液体'],al:'乳・大豆'},
+ {name:'ラクフィア300',type:'食品',kcal:300,prot:12.0,fat:9.0,carb:45.0,salt:1.5,na:591,k:360,ph:180,water:254,tags:['液体'],al:'乳・大豆'},
+ {name:'ラクフィア400',type:'食品',kcal:400,prot:16.0,fat:12.0,carb:60.0,salt:2.0,na:788,k:480,ph:240,water:339,tags:['液体'],al:'乳・大豆'},
+ {name:'マーメッドワン300',type:'食品',kcal:300,prot:12.0,fat:11.4,carb:41.4,salt:1.07,na:420,k:495,ph:330,water:252,tags:['半固形','逆流防止'],al:'大豆'},
+ {name:'マーメッドワン400',type:'食品',kcal:400,prot:16.0,fat:15.2,carb:55.2,salt:1.42,na:560,k:660,ph:440,water:336,tags:['半固形','逆流防止'],al:'大豆'},
+ {name:'グルセルナ200',type:'食品',kcal:200,prot:8.4,fat:11.1,carb:19.4,salt:0.5,na:188,k:200,ph:130,water:170,tags:['糖尿病用'],al:'乳・大豆'},
+ {name:'グルセルナ400',type:'食品',kcal:400,prot:16.8,fat:22.4,carb:38.8,salt:1.0,na:376,k:400,ph:260,water:340,tags:['糖尿病用'],al:'乳・大豆'},
+ {name:'ペプチーノ',type:'食品',kcal:200,prot:7.2,fat:0,carb:42.8,salt:0.36,na:140,k:154,ph:80,water:170,tags:['消化態','無脂肪'],al:'乳'},
+ {name:'すっきりクリミール',type:'食品',kcal:200,prot:7.5,fat:0,carb:44.6,salt:0.2,na:79,k:0,ph:null,water:93,tags:['低K'],al:'乳・大豆・ゼラチン'},
+ {name:'リーナレンLP',type:'食品',kcal:200,prot:2.0,fat:5.6,carb:37.0,salt:0.15,na:60,k:60,ph:40,water:94.8,tags:['低K','低P','腎'],al:'乳・大豆'},
+ {name:'リーナレンMP',type:'食品',kcal:200,prot:7.0,fat:5.6,carb:32.0,salt:0.30,na:120,k:60,ph:70,water:93.6,tags:['低K','低P','腎'],al:'乳・大豆'},
+ {name:'ヘパス',type:'食品',kcal:200,prot:6.5,fat:6.7,carb:31.6,salt:0.35,na:138,k:53,ph:65,water:94,tags:['BCAA','肝'],al:'乳・大豆'},
+ {name:'ネクサスST',type:'食品',kcal:300,prot:12.0,fat:8.4,carb:44.1,salt:0.91,na:360,k:399,ph:234,water:156,tags:['消化態'],al:'乳・大豆'},
+ {name:'グルタミンCO',type:'食品',kcal:33.6,prot:7.0,fat:0,carb:1.4,salt:0.002,na:0.6,k:2,ph:0.5,water:200,tags:['粉末'],al:''},
+ {name:'GFO',type:'食品',kcal:30,prot:3.6,fat:0,carb:6.3,salt:0.032,na:13,k:0,ph:0,water:150,tags:['粉末'],al:''},
+ {name:'イノラス',type:'医薬品',kcal:300,prot:12.0,fat:8.5,carb:43.5,salt:0.7,na:270,k:551,ph:null,water:140.6,tags:['高カロリー'],al:'牛乳'},
+ {name:'イノソリッド',type:'医薬品',kcal:300,prot:13.5,fat:8.34,carb:44.25,salt:1.0,na:393,k:552,ph:333.6,water:228,tags:['半固形'],al:'牛乳'},
+ {name:'エンシュア・H',type:'医薬品',kcal:375,prot:13.2,fat:13.2,carb:51.5,salt:0.8,na:300,k:560,ph:250,water:194,tags:['高カロリー'],al:'牛乳'},
+ {name:'エレンタール',type:'医薬品',kcal:300,prot:13.1,fat:0.51,carb:63.41,salt:0.66,na:260,k:217.6,ph:305,water:250,tags:['成分栄養'],al:''},
+ {name:'アミノレバンEN',type:'医薬品',kcal:213,prot:13.5,fat:3.7,carb:31.5,salt:0.1,na:39,k:212,ph:150,water:180,tags:['BCAA','肝'],al:''},
+ {name:'リーバクト配合顆粒',type:'医薬品',kcal:16,prot:4.0,fat:0,carb:0,salt:0,na:0,k:0,ph:0,water:0,tags:['BCAA'],al:''},
+ {name:'リーバクト経口ゼリー',type:'医薬品',kcal:17,prot:4.0,fat:0,carb:0,salt:0,na:0,k:0,ph:0,water:0,tags:['BCAA'],al:''},
+];
 const MP=95,MF=60,MC=370,MS=10;
-let sex='m', ht=165, wt=60, age=65, aI=1, sI=0, selIdx=null, tgt=null;
+let sex='m', ht=165, wt=60, age=65, aI=1, sI=0, selIdx=null, tgt=null, trayN={};
 
 /* ── Generic numeric stepper with long-press ── */
 function bindNum(key, min, max, getV, setV){
@@ -521,10 +589,9 @@ function buildUI(){
 
 function selectItem(i){
   if(selIdx!==null){ const p=document.getElementById(`dc-${selIdx}`); if(p)p.classList.remove('on'); }
-  if(selIdx===i){ selIdx=null; hideDetail(); refreshDots(); return; }
-  selIdx=i;
-  const c=document.getElementById(`dc-${i}`); if(c){c.classList.add('on');c.classList.remove('mh');}
-  showDetail(DB[i]); refreshDots();
+  if(selIdx===i){ selIdx=null; }
+  else { selIdx=i; const c=document.getElementById(`dc-${i}`); if(c){c.classList.add('on');c.classList.remove('mh');} }
+  renderCombo(); refreshDots();
 }
 
 function makePieSVG(prot, fat, carb, size){
@@ -550,31 +617,96 @@ function makePieSVG(prot, fat, carb, size){
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${paths}</svg><div class="pie-leg">${legs}</div>`;
 }
 
-function showDetail(d){
+function combo(){
+  let o={kcal:0,p:0,f:0,c:0,salt:0,na:0,kFix:0,pFix:0,water:0,kEst:0,pEst:0,parts:[],mealCat:'',als:new Set()};
+  if(selIdx!=null){const d=DB[selIdx];o.kcal+=d.kcal;o.p+=d.prot;o.f+=d.fat;o.c+=d.carb;o.salt+=d.salt;o.na+=d.salt*393.7;o.kEst+=d.prot*25;o.pEst+=d.prot*15;o.mealCat=d.cat;o.parts.push(d.name);}
+  for(const i in trayN){const q=trayN[i],x=NUTR[i];o.kcal+=x.kcal*q;o.p+=x.prot*q;o.f+=x.fat*q;o.c+=x.carb*q;o.salt+=x.salt*q;o.na+=x.na*q;if(x.k!=null)o.kFix+=x.k*q;if(x.ph!=null)o.pFix+=x.ph*q;o.water+=x.water*q;if(x.al)x.al.split('・').forEach(a=>o.als.add(a));o.parts.push(x.name+'\u00D7'+q);}
+  o.als=[...o.als];return o;
+}
+function renderCombo(){
+  const has=selIdx!=null||Object.keys(trayN).length>0;
+  if(!has){hideDetail();return;}
   document.getElementById('darea').classList.add('show');
   document.getElementById('nosel').style.display='none';
   document.getElementById('di').style.display='block';
-  document.getElementById('d-kn').textContent=d.kcal;
-  document.getElementById('d-cat').textContent=d.cat;
-  document.getElementById('d-name').textContent=d.name;
-  document.getElementById('d-pie').innerHTML=makePieSVG(d.prot,d.fat,d.carb,64);
-  document.getElementById('vp').textContent=d.prot;
-  document.getElementById('vf').textContent=d.fat;
-  document.getElementById('vc').textContent=d.carb;
-  document.getElementById('vs').textContent=d.salt;
-  // CPF % of total kcal (P:4kcal/g, F:9kcal/g, C:4kcal/g)
+  const d=combo(), r1=v=>Math.round(v*10)/10, nNutr=Object.keys(trayN).length;
+  document.getElementById('d-kn').textContent=Math.round(d.kcal);
+  document.getElementById('d-cat').textContent = nNutr? (selIdx!=null? d.mealCat+' \uFF0B 経腸栄養':'経腸栄養/補助食品') : d.mealCat;
+  document.getElementById('d-name').innerHTML=d.parts.join(' \uFF0B ');
+  document.getElementById('d-pie').innerHTML=makePieSVG(d.p,d.f,d.c,64);
+  document.getElementById('vp').textContent=r1(d.p);
+  document.getElementById('vf').textContent=r1(d.f);
+  document.getElementById('vc').textContent=r1(d.c);
+  document.getElementById('vs').textContent=r1(d.salt);
   if(d.kcal>0){
-    document.getElementById('pp').textContent=Math.round(d.prot*4/d.kcal*100)+'%';
-    document.getElementById('fp').textContent=Math.round(d.fat*9/d.kcal*100)+'%';
-    document.getElementById('cp').textContent=Math.round(d.carb*4/d.kcal*100)+'%';
+    document.getElementById('pp').textContent=Math.round(d.p*4/d.kcal*100)+'%';
+    document.getElementById('fp').textContent=Math.round(d.f*9/d.kcal*100)+'%';
+    document.getElementById('cp').textContent=Math.round(d.c*4/d.kcal*100)+'%';
   }
-  updateBadge();
+  const badge=document.getElementById('dbadge');
+  if(tgt){const pct=Math.round(d.kcal/tgt*100);badge.textContent='必要量 '+pct+'%';badge.className='dbadge show '+(pct>110?'over':pct<90?'low':'ok');}
+  else badge.className='dbadge';
   requestAnimationFrame(()=>{
-    document.getElementById('bp').style.width=Math.min(100,d.prot/MP*100)+'%';
-    document.getElementById('bf').style.width=Math.min(100,d.fat /MF*100)+'%';
-    document.getElementById('bc').style.width=Math.min(100,d.carb/MC*100)+'%';
+    document.getElementById('bp').style.width=Math.min(100,d.p/MP*100)+'%';
+    document.getElementById('bf').style.width=Math.min(100,d.f/MF*100)+'%';
+    document.getElementById('bc').style.width=Math.min(100,d.c/MC*100)+'%';
     document.getElementById('bs').style.width=Math.min(100,d.salt/MS*100)+'%';
   });
+  renderElecCmt(d);
+}
+function renderElecCmt(d){
+  const box=document.getElementById('d-extra');
+  if(!Object.keys(trayN).length){box.style.display='none';return;}
+  box.style.display='block';
+  const R=Math.round, hasMeal=selIdx!=null;
+  document.getElementById('e-na').textContent=R(d.na);
+  document.getElementById('e-water').textContent=R(d.water);
+  document.getElementById('e-k').innerHTML=R(d.kFix)+(hasMeal?'<span class="est">\uFF0B約'+R(d.kEst)+'</span>':'');
+  document.getElementById('e-p').innerHTML=R(d.pFix)+(hasMeal?'<span class="est">\uFF0B約'+R(d.pEst)+'</span>':'');
+  let cm='', c=d.mealCat||'';
+  if(c.includes('腎'))cm+='<div class="ci2"><span>\U0001F9C2</span><span><b>腎・糖尿病食</b>：K・リンが管理対象。栄養剤由来 K計'+R(d.kFix)+'／P計'+R(d.pFix)+'mg。給食分は目安値です。</span></div>';
+  else if(c.includes('塩分'))cm+='<div class="ci2"><span>\U0001F4A7</span><span><b>塩分制限</b>：Na・水分が管理対象。Na計'+R(d.na)+'mg、栄養剤水分計'+R(d.water)+'mL。</span></div>';
+  else if(c.includes('肝'))cm+='<div class="ci2"><span>\U0001F537</span><span><b>肝疾患</b>：BCAA配合品を優先すると相性良好。</span></div>';
+  if(d.als.length)cm+='<div class="ci2"><span>\u26A0</span><span>アレルギー：'+d.als.join('・')+'</span></div>';
+  cm+='<div class="ci2"><span>\U0001F48A</span><span>栄養剤'+Object.keys(trayN).length+'品を使用中。単独長期はビタミン・微量元素の不足に注意。</span></div>';
+  document.getElementById('d-cmt').innerHTML=cm;
+  let w='';
+  if(c.includes('腎')){const hiK=Object.keys(trayN).some(i=>NUTR[i].k>300);if(hiK)w='\u26A0 腎機能に配慮中ですが、<b>高カリウムの栄養剤</b>（マーメッドワン等 K&gt;300mg/本）が入っています。K負荷にご注意を。低K設計のリーナレンが候補です。';}
+  const wel=document.getElementById('d-warn');wel.innerHTML=w;wel.style.display=w?'block':'none';
+}
+function nctrlHTML(i){
+  const q=trayN[i];
+  return q ? '<div class="nqty"><span class="nqb" onclick="event.stopPropagation();qtyN('+i+',-1)">\u2212</span><span class="nqn">'+q+'</span><span class="nqu">本</span><span class="nqb" onclick="event.stopPropagation();qtyN('+i+',1)">\uFF0B</span></div>'
+             : '<div class="naddb" onclick="event.stopPropagation();qtyN('+i+',1)">\uFF0B</div>';
+}
+function qtyN(i,dd){
+  const cur=trayN[i];
+  if(cur==null){ if(dd>0) trayN[i]=3; }
+  else { const v=cur+dd; if(v<1) delete trayN[i]; else trayN[i]=v; }
+  renderNutrCard(i); renderCombo();
+}
+function renderNutrCard(i){
+  const el=document.getElementById('nc-'+i);
+  if(el){ el.querySelector('.nctrl').innerHTML=nctrlHTML(i); el.classList.toggle('non',trayN[i]!=null); }
+}
+function buildNutrUI(){
+  const area=document.getElementById('larea');
+  const bl=document.createElement('div'); bl.className='cb col'; bl.dataset.cat='経腸栄養/補助食品';
+  const hd=document.createElement('div'); hd.className='ch';
+  hd.innerHTML='<span class="cl">\U0001F48A 経腸栄養/補助食品</span><span class="cn">'+NUTR.length+'</span><span class="cv">\u25BC</span>';
+  hd.onclick=()=>bl.classList.toggle('col'); bl.appendChild(hd);
+  const body=document.createElement('div'); body.className='cb-body';
+  const grid=document.createElement('div'); grid.className='dg';
+  NUTR.forEach((x,i)=>{
+    const col = x.type==='医薬品'?'var(--accent3)':'var(--accent2)';
+    const badge='<span class="ntag" style="border-color:'+col+';color:'+col+'">'+x.type+'</span>';
+    const tg=(x.tags||[]).map(t=>'<span class="ntag">'+t+'</span>').join('');
+    const sub=x.kcal+'kcal\u30FBP'+x.prot+' F'+x.fat+' C'+x.carb+' 塩'+x.salt+' '+tg;
+    const c=document.createElement('div'); c.className='dc ncard'+(trayN[i]!=null?' non':''); c.id='nc-'+i;
+    c.innerHTML='<div style="flex:1;min-width:0"><div class="dn">'+x.name+badge+'</div><div class="nsub">'+sub+'</div></div><div class="nctrl">'+nctrlHTML(i)+'</div>';
+    grid.appendChild(c);
+  });
+  body.appendChild(grid); bl.appendChild(body); area.appendChild(bl);
 }
 
 function hideDetail(){
@@ -609,6 +741,7 @@ bindNum('age', 0,  100, ()=>age, setAge);
 bindIdx('act', ACT.length, ()=>aI, setAI);
 bindIdx('str', STR.length, ()=>sI, setSI);
 buildUI();
+buildNutrUI();
 calcAll();
 
 /* ── Resizer ── */
