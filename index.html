@@ -24,6 +24,45 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
   display:flex;align-items:center;padding:0 12px;gap:8px;z-index:20;box-shadow:0 2px 12px rgba(0,0,0,.4)}
 .logo{font-size:15px;font-weight:800;color:var(--accent);letter-spacing:-.02em;white-space:nowrap}
 .logo span{color:var(--text3);font-weight:400;font-size:10px;margin-left:4px}
+.logo .ver{color:var(--accent2);font-weight:700;font-size:10px;margin-left:5px;
+  border:1px solid var(--border);border-radius:5px;padding:1px 5px;letter-spacing:.02em}
+
+/* ══ v1.2.0 カテゴリタイル（3列）══ */
+.catgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:8px 10px}
+.tile{background:var(--panel);border:1px solid var(--border);border-radius:8px;
+  min-height:clamp(30px,7.5vw,36px);padding:4px 8px;
+  display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:6px;
+  cursor:pointer;user-select:none;-webkit-user-select:none;position:relative;
+  transition:background .14s,border-color .14s,transform .08s}
+.tile:active{transform:scale(.96)}
+.tile .tname{font-size:clamp(9.5px,2.7vw,11.5px);font-weight:700;color:var(--text);
+  line-height:1.2;text-align:left;flex:1;min-width:0}
+.tile .tcnt{flex-shrink:0;font-size:9px;color:var(--text3);background:var(--bg2);
+  border-radius:999px;padding:1px 6px;font-variant-numeric:tabular-nums}
+.tile.on{background:var(--card-on);border-color:var(--accent)}
+.tile.on .tname{color:var(--accent)}
+.tile.on .tcnt{background:#0d1f35;color:var(--accent)}
+.tile.ent .tcnt{color:var(--accent2)}
+.tile.ent.on{border-color:var(--accent2)}
+.tile.ent.on .tname{color:var(--accent2)}
+/* 選択中マーク（食種選択 or 経腸に本数あり）*/
+.tile.has::after{content:'';position:absolute;top:5px;right:5px;width:6px;height:6px;
+  border-radius:50%;background:var(--accent2)}
+.tile.on.has::after{display:none}
+
+/* 詳細パネル見出し */
+.cddet{padding:0}
+.cdhead{display:flex;align-items:center;gap:8px;padding:8px 12px 4px;
+  position:sticky;top:0;background:var(--bg);z-index:6;border-bottom:1px solid var(--border)}
+.cdhead .cdh-name{font-size:12px;font-weight:800;color:var(--accent)}
+.cdhead .cdh-name.ent{color:var(--accent2)}
+.cdhead .cdh-cnt{font-size:9px;color:var(--text3);background:var(--panel);border-radius:4px;padding:1px 6px}
+.cdhead .cdh-x{margin-left:auto;font-size:10px;color:var(--text3);border:1px solid var(--border);
+  border-radius:6px;padding:2px 8px;cursor:pointer}
+.cdhead .cdh-x:active{background:var(--panel)}
+.cdsub{font-size:9.5px;color:var(--text3);line-height:1.5;padding:8px 12px;
+  border-top:1px dashed var(--border);margin:0 10px}
+.cdsub b{color:var(--amber);font-weight:700}
 .sw{flex:1;position:relative;display:flex;align-items:center}
 .sw input{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);
   border-radius:7px;padding:5px 28px 5px 9px;font-size:12px;font-family:var(--font);
@@ -184,6 +223,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 .cb.col .cb-body{display:none}
 .cb.hidden{display:none}
 .dg{display:grid;grid-template-columns:1fr 1fr;border-left:1px solid var(--border)}
+.dgn{display:grid;grid-template-columns:1fr;border-left:1px solid var(--border)}
 .dc{display:flex;flex-direction:column;justify-content:space-between;padding:8px 10px;background:var(--bg);
   border-right:1px solid var(--border);border-bottom:1px solid var(--border);min-height:52px;gap:4px;
   cursor:pointer;transition:background .12s;-webkit-user-select:none;user-select:none}
@@ -259,7 +299,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 <div class="app">
 
 <header class="hdr">
-  <div class="logo">給食成分表<span>Diet Calc</span></div>
+  <div class="logo">給食成分表<span>Diet Calc</span><span class="ver">v1.2.0</span></div>
   <div class="sw">
     <input type="search" id="srch" placeholder="食種名で検索…" autocomplete="off" oninput="onSearch(this.value)">
     <span class="sw-x" onclick="clearSearch()">✕</span>
@@ -561,29 +601,67 @@ function updateBadge(){
   } else { badge.className='dbadge'; }
 }
 
-/* ── List ── */
+/* ── List v1.2.0：3列カテゴリタイル ＋ 選択カテゴリ詳細 ── */
+let activeCat=null;
+const catsMap={}; DB.forEach((d,i)=>{ (catsMap[d.cat] ||= []).push(i); });
+const CAT_LIST=Object.keys(catsMap);
+const ENT_KEY='経腸栄養/補助食品';
+
 function buildUI(){
   const area=document.getElementById('larea');
-  const cats={};
-  DB.forEach((d,i)=>{ if(!cats[d.cat])cats[d.cat]=[]; cats[d.cat].push(i); });
-  Object.entries(cats).forEach(([cat,ids])=>{
-    const bl=document.createElement('div'); bl.className='cb col'; bl.dataset.cat=cat;
-    const hd=document.createElement('div'); hd.className='ch';
-    hd.innerHTML=`<span class="cl">${cat}</span><span class="cn">${ids.length}</span><span class="cv">▼</span>`;
-    hd.onclick=()=>bl.classList.toggle('col');
-    bl.appendChild(hd);
-    const body=document.createElement('div'); body.className='cb-body';
-    const grid=document.createElement('div'); grid.className='dg';
-    ids.forEach(i=>{
-      const d=DB[i]; const c=document.createElement('div');
-      c.className='dc'; c.id=`dc-${i}`;
-      c.innerHTML=`<div class="dn">${d.name}</div>
-        <div class="dk">${d.kcal}<span style="font-size:9px;font-weight:400;color:var(--text3);margin-left:2px">kcal</span></div>
-        <div class="dm">P${d.prot} F${d.fat} C${d.carb} 塩${d.salt}</div>`;
-      c.addEventListener('click',()=>selectItem(i));
-      grid.appendChild(c);
-    });
-    body.appendChild(grid); bl.appendChild(body); area.appendChild(bl);
+  area.innerHTML='<div class="catgrid" id="catgrid"></div><div class="cddet" id="cddet"></div>';
+  const g=document.getElementById('catgrid');
+  let h='';
+  CAT_LIST.forEach(cat=>{
+    h+=`<div class="tile" data-cat="${cat}"><div class="tname">${cat}</div><div class="tcnt">${catsMap[cat].length}</div></div>`;
+  });
+  h+=`<div class="tile ent" data-cat="${ENT_KEY}"><div class="tname">経腸栄養/補助食品</div><div class="tcnt">${NUTR.length}</div></div>`;
+  g.innerHTML=h;
+  g.querySelectorAll('.tile').forEach(t=>t.addEventListener('click',()=>showCat(t.dataset.cat)));
+  refreshTileMarks();
+}
+
+function foodCardHTML(i){
+  const d=DB[i];
+  return `<div class="dc" id="dc-${i}"><div class="dn">${d.name}</div>`
+    +`<div class="dk">${d.kcal}<span style="font-size:9px;font-weight:400;color:var(--text3);margin-left:2px">kcal</span></div>`
+    +`<div class="dm">P${d.prot} F${d.fat} C${d.carb} 塩${d.salt}</div></div>`;
+}
+function nutrCardHTML(i){
+  const x=NUTR[i];
+  const col=x.type==='医薬品'?'var(--accent3)':'var(--accent2)';
+  const badge=`<span class="ntag" style="border-color:${col};color:${col}">${x.type}</span>`;
+  const tg=(x.tags||[]).map(t=>`<span class="ntag">${t}</span>`).join('');
+  const sub=`${x.kcal}kcal\u30FBP${x.prot} F${x.fat} C${x.carb} 塩${x.salt} ${tg}`;
+  return `<div class="dc ncard${trayN[i]!=null?' non':''}" id="nc-${i}"><div style="flex:1;min-width:0"><div class="dn">${x.name}${badge}</div><div class="nsub">${sub}</div></div><div class="nctrl">${nctrlHTML(i)}</div></div>`;
+}
+
+function showCat(cat){
+  // トグル：同じタイルなら閉じる
+  if(activeCat===cat){ activeCat=null; document.getElementById('cddet').innerHTML=''; refreshTileMarks(); return; }
+  activeCat=cat;
+  const isEnt=cat===ENT_KEY;
+  const cnt=isEnt?NUTR.length:catsMap[cat].length;
+  const body = isEnt
+    ? '<div class="dgn">'+NUTR.map((x,i)=>nutrCardHTML(i)).join('')+'</div>'
+    : '<div class="dg">'+catsMap[cat].map(i=>foodCardHTML(i)).join('')+'</div>';
+  document.getElementById('cddet').innerHTML=
+    `<div class="cdhead"><span class="cdh-name${isEnt?' ent':''}">${cat}</span><span class="cdh-cnt">${cnt}品目</span><span class="cdh-x" onclick="showCat('${cat}')">閉じる ✕</span></div>`+body;
+  // イベント（食種はJSでバインド／経腸は±がonclick属性）
+  if(!isEnt){
+    catsMap[cat].forEach(i=>{ const c=document.getElementById('dc-'+i); if(c)c.addEventListener('click',()=>selectItem(i)); });
+    if(selIdx!=null && DB[selIdx].cat===cat){ const c=document.getElementById('dc-'+selIdx); if(c)c.classList.add('on'); }
+  }
+  refreshTileMarks(); refreshDots();
+  setTimeout(()=>document.getElementById('cddet').scrollIntoView({behavior:'smooth',block:'nearest'}),60);
+}
+
+function refreshTileMarks(){
+  document.querySelectorAll('.tile').forEach(t=>{
+    const cat=t.dataset.cat;
+    t.classList.toggle('on',cat===activeCat);
+    const has = cat===ENT_KEY ? Object.keys(trayN).length>0 : (selIdx!=null && DB[selIdx].cat===cat);
+    t.classList.toggle('has',has);
   });
 }
 
@@ -591,7 +669,7 @@ function selectItem(i){
   if(selIdx!==null){ const p=document.getElementById(`dc-${selIdx}`); if(p)p.classList.remove('on'); }
   if(selIdx===i){ selIdx=null; }
   else { selIdx=i; const c=document.getElementById(`dc-${i}`); if(c){c.classList.add('on');c.classList.remove('mh');} }
-  renderCombo(); refreshDots();
+  renderCombo(); refreshDots(); refreshTileMarks();
 }
 
 function makePieSVG(prot, fat, carb, size){
@@ -683,7 +761,7 @@ function qtyN(i,dd){
   const cur=trayN[i];
   if(cur==null){ if(dd>0) trayN[i]=3; }
   else { const v=cur+dd; if(v<1) delete trayN[i]; else trayN[i]=v; }
-  renderNutrCard(i); renderCombo();
+  renderNutrCard(i); renderCombo(); refreshTileMarks();
 }
 function renderNutrCard(i){
   const el=document.getElementById('nc-'+i);
@@ -719,18 +797,25 @@ function hideDetail(){
 }
 
 function onSearch(q){
-  q=q.trim().toLowerCase(); let any=false;
-  document.querySelectorAll('.cb').forEach(bl=>{
-    let has=false;
-    bl.querySelectorAll('.dc').forEach(c=>{
-      const i=parseInt(c.id.replace('dc-',''));
-      const ok=!q||DB[i].name.toLowerCase().includes(q)||DB[i].cat.toLowerCase().includes(q);
-      c.classList.toggle('hidden',!ok); if(ok)has=true;
-    });
-    bl.classList.toggle('hidden',!has);
-    if(has){any=true; if(q)bl.classList.remove('col');}
-  });
-  document.getElementById('nores').classList.toggle('show',!any);
+  q=q.trim().toLowerCase();
+  const grid=document.getElementById('catgrid');
+  const det=document.getElementById('cddet');
+  const nores=document.getElementById('nores');
+  if(!q){
+    grid.style.display=''; activeCat=null; det.innerHTML='';
+    nores.classList.remove('show'); refreshTileMarks(); return;
+  }
+  grid.style.display='none'; activeCat=null;
+  const fHit=DB.map((d,i)=>i).filter(i=>DB[i].name.toLowerCase().includes(q)||DB[i].cat.toLowerCase().includes(q));
+  const nHit=NUTR.map((x,i)=>i).filter(i=>NUTR[i].name.toLowerCase().includes(q)||NUTR[i].type.toLowerCase().includes(q)||(NUTR[i].tags||[]).join(' ').toLowerCase().includes(q));
+  let html='';
+  if(fHit.length) html+='<div class="cdhead"><span class="cdh-name">食種</span><span class="cdh-cnt">'+fHit.length+'件</span></div><div class="dg">'+fHit.map(foodCardHTML).join('')+'</div>';
+  if(nHit.length) html+='<div class="cdhead"><span class="cdh-name ent">経腸栄養/補助食品</span><span class="cdh-cnt">'+nHit.length+'件</span></div><div class="dgn">'+nHit.map(nutrCardHTML).join('')+'</div>';
+  det.innerHTML=html;
+  fHit.forEach(i=>{ const c=document.getElementById('dc-'+i); if(c)c.addEventListener('click',()=>selectItem(i)); });
+  if(selIdx!=null){ const c=document.getElementById('dc-'+selIdx); if(c)c.classList.add('on'); }
+  nores.classList.toggle('show', fHit.length+nHit.length===0);
+  refreshDots();
 }
 function clearSearch(){ const inp=document.getElementById('srch'); inp.value=''; onSearch(''); inp.focus(); }
 
@@ -741,7 +826,6 @@ bindNum('age', 0,  100, ()=>age, setAge);
 bindIdx('act', ACT.length, ()=>aI, setAI);
 bindIdx('str', STR.length, ()=>sI, setSI);
 buildUI();
-buildNutrUI();
 calcAll();
 
 /* ── Resizer ── */
