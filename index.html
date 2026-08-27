@@ -223,7 +223,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 .cb.col .cb-body{display:none}
 .cb.hidden{display:none}
 .dg{display:grid;grid-template-columns:1fr 1fr;border-left:1px solid var(--border)}
-.dgn{display:grid;grid-template-columns:1fr;border-left:1px solid var(--border)}
+.dgn{display:grid;grid-template-columns:1fr 1fr;border-left:1px solid var(--border)}
 .dc{display:flex;flex-direction:column;justify-content:space-between;padding:8px 10px;background:var(--bg);
   border-right:1px solid var(--border);border-bottom:1px solid var(--border);min-height:52px;gap:4px;
   cursor:pointer;transition:background .12s;-webkit-user-select:none;user-select:none}
@@ -264,10 +264,12 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
   .ctgl{display:none}
 }
 
-/* ── 経腸栄養統合 ── */
-.ncard{display:flex!important;align-items:center;gap:8px}
+/* ── 経腸栄養統合（2列カード）── */
+.ncard{display:flex!important;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:5px}
+.ncard>div:first-child{flex:1;min-width:0}
+.ncard .dn{line-height:1.3}
 .ncard .nsub{font-size:9.5px;color:var(--text3);margin-top:2px;line-height:1.4}
-.nctrl{flex-shrink:0}
+.nctrl{flex-shrink:0;align-self:flex-end}
 .nqty{display:flex;align-items:center;gap:4px}
 .naddb{width:28px;height:28px;border-radius:7px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--accent);cursor:pointer}
 .naddb:active{background:var(--accent);color:#fff}
