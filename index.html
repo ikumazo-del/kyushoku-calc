@@ -8,9 +8,9 @@
 <title>給食成分表</title>
 <style>
 :root{
-  --bg:#0f1923;--bg2:#161f2c;--panel:#1c2736;--border:#263040;
-  --accent:#3b9eff;--accent2:#00d4aa;--accent3:#ff6b6b;--amber:#ffb347;
-  --text:#e8edf5;--text2:#8a9ab5;--text3:#4a5a6e;--card-on:#1e3550;
+  --bg:#f7f9fc;--bg2:#eef2f8;--panel:#ffffff;--border:#e2e8f0;
+  --accent:#2b7fe0;--accent2:#0a9d82;--accent3:#e04b4b;--amber:#c77a12;
+  --text:#16202e;--text2:#5a6b82;--text3:#9aa8bc;--card-on:#e8f1fc;
   --font:-apple-system,'Hiragino Sans','Hiragino Kaku Gothic ProN',sans-serif;
   --sat-t:env(safe-area-inset-top,0px);--sat-b:env(safe-area-inset-bottom,0px);
   --hh:50px;
@@ -41,7 +41,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
   border-radius:999px;padding:1px 6px;font-variant-numeric:tabular-nums}
 .tile.on{background:var(--card-on);border-color:var(--accent)}
 .tile.on .tname{color:var(--accent)}
-.tile.on .tcnt{background:#0d1f35;color:var(--accent)}
+.tile.on .tcnt{background:#d0e4fa;color:var(--accent)}
 .tile.ent .tcnt{color:var(--accent2)}
 .tile.ent.on{border-color:var(--accent2)}
 .tile.ent.on .tname{color:var(--accent2)}
@@ -84,7 +84,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 .ci{padding:6px 8px 8px;display:flex;flex-direction:column;gap:5px}
 /* result card inside icard grid */
 .icard.rc{display:flex;flex-direction:column;justify-content:center;gap:2px;padding:6px 7px}
-.icard.rc.hi{border-color:var(--accent);background:#0d1f35}
+.icard.rc.hi{border-color:var(--accent);background:var(--card-on)}
 .cc-l{font-size:8px;color:var(--text3);font-weight:600;letter-spacing:.03em;line-height:1.2}
 .cc-v{font-size:28px;font-weight:900;color:var(--accent2);font-variant-numeric:tabular-nums;line-height:1.05}
 .icard.rc.hi .cc-v{color:var(--accent);font-size:28px}
@@ -165,9 +165,9 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 .dbadge{display:none;margin-top:4px;align-self:flex-start;
   font-size:9px;font-weight:800;padding:2px 7px;border-radius:5px;white-space:nowrap}
 .dbadge.show{display:inline-block}
-.dbadge.ok  {background:#003d22;color:#00d4aa;border:1px solid #00d4aa}
-.dbadge.over{background:#3d0f00;color:#ff6b6b;border:1px solid #ff6b6b}
-.dbadge.low {background:#2a1c00;color:#ffb347;border:1px solid #ffb347}
+.dbadge.ok  {background:#e1f5ee;color:#0a7d5f;border:1px solid #7fceb0}
+.dbadge.over{background:#fdeaea;color:#c23636;border:1px solid #eaa3a3}
+.dbadge.low {background:#fbf1dd;color:#b06f10;border:1px solid #e6c68a}
 .d-nb{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .d-cat{font-size:9px;color:var(--text3);font-weight:700;letter-spacing:.08em;margin-bottom:2px}
 .d-name{font-size:14px;font-weight:800;color:var(--text);line-height:1.2}
@@ -182,7 +182,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 .darea.show{max-height:210px}
 
 /* 候補バー（計算パネル外） */
-.mhint-bar{font-size:10px;color:var(--amber);background:#1e1800;border-bottom:1px solid #3a3000;
+.mhint-bar{font-size:10px;color:var(--amber);background:#fdf4e3;border-bottom:1px solid #f0e2c0;
   padding:5px 12px;line-height:1.4}
 
 /* 計算パネル内mhintは非表示 */
@@ -229,7 +229,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
   cursor:pointer;transition:background .12s;-webkit-user-select:none;user-select:none}
 .dc:active{background:var(--panel)}
 .dc.on{background:var(--card-on);border-left:2px solid var(--accent)}
-.dc.mh{background:#0d1e0f}
+.dc.mh{background:#eaf6ee}
 .dc.hidden{display:none}
 .dn{font-size:11px;font-weight:600;color:var(--text);line-height:1.25}
 .dk{font-size:14px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1}
@@ -289,19 +289,19 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 .euni{font-size:9px;margin-left:1px}
 .el-sub{font-size:7.5px;color:var(--text3);line-height:1.3}
 .est{color:var(--amber);font-size:11px;font-weight:600;margin-left:2px}
-.badge2{display:inline-block;font-size:8px;padding:0 5px;border-radius:4px;margin-left:3px;background:#003d22;color:#00d4aa}
+.badge2{display:inline-block;font-size:8px;padding:0 5px;border-radius:4px;margin-left:3px;background:#e1f5ee;color:#0a7d5f}
 .cmt{display:flex;flex-direction:column;gap:5px;margin-top:5px}
 .ci2{display:flex;gap:6px;font-size:11px;color:var(--text);align-items:flex-start;line-height:1.45}
 .ci2 b{color:var(--accent)}
-.warn{background:#3d0f00;border:1px solid var(--accent3);color:#ff9a9a;border-radius:8px;padding:8px 10px;font-size:11px;line-height:1.45;margin-top:8px}
-.warn b{color:#ff6b6b}
+.warn{background:#fdeaea;border:1px solid var(--accent3);color:#b03535;border-radius:8px;padding:8px 10px;font-size:11px;line-height:1.45;margin-top:8px}
+.warn b{color:#c23636}
 </style>
 </head>
 <body>
 <div class="app">
 
 <header class="hdr">
-  <div class="logo">給食成分表<span>Diet Calc</span><span class="ver">v1.2.0</span></div>
+  <div class="logo">給食成分表<span>Diet Calc</span><span class="ver">v1.2.1</span></div>
   <div class="sw">
     <input type="search" id="srch" placeholder="食種名で検索…" autocomplete="off" oninput="onSearch(this.value)">
     <span class="sw-x" onclick="clearSearch()">✕</span>
@@ -563,7 +563,7 @@ function calcAll(){
   const bmi=wt/((ht/100)**2);
   const bEl=document.getElementById('r-bmi');
   bEl.textContent=bmi.toFixed(1);
-  bEl.style.color=bmi<18.5?'#ffb347':bmi<25?'#00d4aa':bmi<30?'#ffb347':'#ff6b6b';
+  bEl.style.color=bmi<18.5?'#c77a12':bmi<25?'#0a9d82':bmi<30?'#c77a12':'#e04b4b';
 
   const bmr=sex==='m'
     ? 66.47+13.75*wt+5.0*ht-6.76*age
@@ -678,9 +678,9 @@ function makePieSVG(prot, fat, carb, size){
   const ckcal=carb*4, pkcal=prot*4, fkcal=fat*9;
   const tot=ckcal+pkcal+fkcal||1;
   const slices=[
-    {r:ckcal/tot, c:'#ffb347', l:'糖 '+Math.round(ckcal/tot*100)+'%'},
-    {r:fkcal/tot, c:'#00d4aa', l:'脂 '+Math.round(fkcal/tot*100)+'%'},
-    {r:pkcal/tot, c:'#3b9eff', l:'蛋 '+Math.round(pkcal/tot*100)+'%'},
+    {r:ckcal/tot, c:'#e59a2e', l:'糖 '+Math.round(ckcal/tot*100)+'%'},
+    {r:fkcal/tot, c:'#0a9d82', l:'脂 '+Math.round(fkcal/tot*100)+'%'},
+    {r:pkcal/tot, c:'#2b7fe0', l:'蛋 '+Math.round(pkcal/tot*100)+'%'},
   ];
   const cx=size/2, cy=size/2, rad=size/2-2;
   let ang=-Math.PI/2, paths='';
@@ -690,7 +690,7 @@ function makePieSVG(prot, fat, carb, size){
     const x1=cx+rad*Math.cos(ang), y1=cy+rad*Math.sin(ang);
     const x2=cx+rad*Math.cos(end), y2=cy+rad*Math.sin(end);
     const lg=s.r>0.5?1:0;
-    paths+=`<path d="M${cx},${cy} L${x1.toFixed(1)},${y1.toFixed(1)} A${rad},${rad} 0 ${lg},1 ${x2.toFixed(1)},${y2.toFixed(1)} Z" fill="${s.c}" stroke="#0f1923" stroke-width="1"/>`;
+    paths+=`<path d="M${cx},${cy} L${x1.toFixed(1)},${y1.toFixed(1)} A${rad},${rad} 0 ${lg},1 ${x2.toFixed(1)},${y2.toFixed(1)} Z" fill="${s.c}" stroke="#ffffff" stroke-width="1"/>`;
     ang=end;
   });
   const legs=slices.map(s=>`<div class="pl"><span class="pl-dot" style="background:${s.c}"></span>${s.l}</div>`).join('');
