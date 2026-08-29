@@ -156,11 +156,11 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 .darea{flex-shrink:0;background:var(--bg2);border-bottom:2px solid var(--border);
   overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1);max-height:0}
 .darea.show{max-height:175px}
-.di{padding:9px 12px 10px}
-.d-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.di{padding:7px 12px 9px}
+.d-top{display:flex;align-items:flex-start;gap:9px;margin-bottom:6px}
 .d-kb{display:flex;flex-direction:column;align-items:center;background:var(--panel);
-  border:1px solid var(--border);border-radius:10px;padding:6px 11px;min-width:72px}
-.d-kn{font-size:28px;font-weight:900;color:var(--accent);line-height:1;font-variant-numeric:tabular-nums}
+  border:1px solid var(--border);border-radius:10px;padding:5px 9px;min-width:64px}
+.d-kn{font-size:23px;font-weight:900;color:var(--accent);line-height:1;font-variant-numeric:tabular-nums}
 .d-ku{font-size:9px;color:var(--text3);font-weight:600;letter-spacing:.08em;margin-top:2px}
 .dbadge{display:none;margin-top:4px;align-self:flex-start;
   font-size:9px;font-weight:800;padding:2px 7px;border-radius:5px;white-space:nowrap}
@@ -173,13 +173,33 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 .d-name{font-size:14px;font-weight:800;color:var(--text);line-height:1.2}
 /* PFC pie */
 .d-pie{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px}
-.pie-leg{display:flex;flex-direction:column;gap:1px;margin-top:2px}
-.pl{display:flex;align-items:center;gap:3px;font-size:7.5px;color:var(--text3);white-space:nowrap}
+.pie-leg{display:flex;flex-direction:row;gap:5px;margin-top:3px}
+.pl{display:flex;align-items:center;gap:2px;font-size:7px;color:var(--text3);white-space:nowrap}
 .pl-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 
 .darea{flex-shrink:0;background:var(--bg2);border-bottom:2px solid var(--border);
   overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1);max-height:0}
 .darea.show{max-height:50dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+/* ══ v1.3.4 ドラッグ取っ手 ══ */
+.darea.gsnap{transition:height .22s cubic-bezier(.32,.72,0,1)}
+.grip{display:none;flex-shrink:0;height:26px;background:var(--panel);
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  align-items:center;justify-content:center;cursor:ns-resize;touch-action:none;
+  position:relative;z-index:15;box-shadow:0 -4px 12px rgba(20,30,50,.05)}
+.darea.show ~ .grip{display:flex}
+.grip:active,.grip.drag{background:var(--card-on)}
+.grip-bar{width:40px;height:4.5px;border-radius:999px;background:var(--text3);opacity:.5;
+  transition:width .15s,background .15s,opacity .15s}
+.grip.drag .grip-bar{background:var(--accent);opacity:1;width:52px}
+.gdots{display:flex;gap:4px;position:absolute;right:14px}
+.gdots b{width:5px;height:5px;border-radius:50%;background:var(--text3);opacity:.35;transition:.18s}
+.gdots b.on{background:var(--accent);opacity:1;transform:scale(1.25)}
+.glabel{position:absolute;left:14px;font-size:9px;font-weight:800;color:var(--accent);
+  opacity:0;transition:opacity .15s}
+.grip.drag .glabel{opacity:1}
+@media(min-width:640px){.grip{display:none!important}}
+@media(prefers-reduced-motion:reduce){.darea.gsnap{transition:none}}
 
 /* 候補バー（計算パネル外） */
 .mhint-bar{font-size:10px;color:var(--amber);background:#fdf4e3;border-bottom:1px solid #f0e2c0;
@@ -196,16 +216,16 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 
 /* Compact nutrient bars */
 /* v1.3.1 摂取量（入力）ブロック */
-.intake{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:9px 10px 10px;margin:12px 0}
-.intake-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.intake{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:7px 8px 8px;margin:8px 0}
+.intake-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .intake-ttl{font-size:11px;font-weight:800;color:var(--text)}
 .intake-ttl .tag{font-size:8.5px;color:var(--text3);font-weight:600;margin-left:5px}
 .intake-reset{font-size:10px;color:var(--accent);font-weight:700;cursor:pointer;user-select:none;-webkit-user-select:none}
-.intake-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.icol{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 9px 9px}
-.icol-hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+.intake-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.icol{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:6px 8px 6px}
+.icol-hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3px}
 .icol-lbl{font-size:11px;font-weight:800;color:var(--text)}
-.icol-val{font-size:18px;font-weight:800;line-height:1}
+.icol-val{font-size:15px;font-weight:800;line-height:1}
 .icol-val .u{font-size:10px;font-weight:700;color:var(--text3);margin-left:1px}
 .icol.cmain .icol-lbl,.icol.cmain .icol-val{color:var(--amber)}
 .icol.cside .icol-lbl,.icol.cside .icol-val{color:var(--accent2)}
@@ -216,8 +236,8 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 .icol.cmain input[type=range]::-webkit-slider-thumb{border-color:var(--amber)}
 .icol.cside input[type=range]::-webkit-slider-thumb{border-color:var(--accent2)}
 .icol .ticks{display:flex;justify-content:space-between;font-size:8px;color:var(--text3);margin-top:1px}
-.intake-foot{font-size:9px;color:var(--text2);margin-top:8px}
-.nbars{display:flex;flex-direction:column;gap:5px}
+.intake-foot{font-size:8px;color:var(--text2);margin-top:5px}
+.nbars{display:flex;flex-direction:column;gap:4px}
 .nr{display:flex;align-items:center;gap:6px}
 .nk{width:46px;font-size:9px;color:var(--text2);font-weight:700;flex-shrink:0}
 .nt{flex:1;height:7px;background:var(--border);border-radius:999px;overflow:hidden;max-width:55%}
@@ -233,11 +253,11 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 .nv .np{font-size:9px;color:var(--text2);min-width:28px;text-align:right}
 .nosel{padding:13px;display:flex;align-items:center;gap:8px;color:var(--text3);font-size:12px}
 /* v1.3.0 kyokyugen bar */
-.srcbox{margin:8px 10px 0;padding:8px 10px;background:var(--panel);border:1px solid var(--border);border-radius:9px}
+.srcbox{margin:7px 10px 0;padding:7px 9px;background:var(--panel);border:1px solid var(--border);border-radius:9px}
 .src-hd{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.04em;display:flex;align-items:center;gap:6px;margin-bottom:6px}
 .src-note{color:var(--text3);font-weight:400}
 .src-tgl{margin-left:auto;color:var(--accent);cursor:pointer;font-weight:700}
-.src-kbar{display:flex;height:20px;border-radius:6px;overflow:hidden;background:#eef2f8}
+.src-kbar{display:flex;height:16px;border-radius:6px;overflow:hidden;background:#eef2f8}
 .skf{height:100%;transition:width .45s cubic-bezier(.4,0,.2,1)}
 .skf.m{background:#e59a2e}.skf.o{background:#0a9d82}.skf.e{background:#2b7fe0}
 .src-leg{font-size:10px;color:var(--text2);margin-top:5px;display:flex;justify-content:space-between}
@@ -339,7 +359,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 <div class="app">
 
 <header class="hdr">
-  <div class="logo">給食成分表<span>Diet Calc</span><span class="ver">v1.3.3</span></div>
+  <div class="logo">給食成分表<span>Diet Calc</span><span class="ver">v1.3.4</span></div>
   <div class="sw">
     <input type="search" id="srch" placeholder="食種名で検索…" autocomplete="off" oninput="onSearch(this.value)">
     <span class="sw-x" onclick="clearSearch()">✕</span>
@@ -489,7 +509,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
       <div class="nr"><span class="nk">たんぱく質</span><div class="nt"><div class="nf p" id="bp" style="width:0%"></div></div><span class="nv"><b id="vp">—</b><span class="nu">g</span><span class="np" id="pp">—</span></span></div>
       <div class="nr"><span class="nk">脂　質</span>    <div class="nt"><div class="nf f" id="bf" style="width:0%"></div></div><span class="nv"><b id="vf">—</b><span class="nu">g</span><span class="np" id="fp">—</span></span></div>
       <div class="nr"><span class="nk">炭水化物</span>  <div class="nt"><div class="nf c" id="bc" style="width:0%"></div></div><span class="nv"><b id="vc">—</b><span class="nu">g</span><span class="np" id="cp">—</span></span></div>
-      <div class="nr"><span class="nk">食　塩</span>    <div class="nt"><div class="nf s" id="bs" style="width:0%"></div></div><span class="nv"><b id="vs">—</b><span class="nu">g</span><span class="np"></span></span></div>
+      <div class="nr" id="saltRow"><span class="nk">食　塩</span>    <div class="nt"><div class="nf s" id="bs" style="width:0%"></div></div><span class="nv"><b id="vs">—</b><span class="nu">g</span><span class="np"></span></span></div>
     </div>
     <div class="srcbox" id="srcbox">
       <div class="src-hd">供給源<span class="src-note">主食/副食/経腸</span><span class="src-tgl" id="srcTgl" onclick="toggleSrc()">[+] PFC内訳</span></div>
@@ -515,6 +535,12 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
       <div class="warn" id="d-warn" style="display:none"></div>
     </div>
   </div>
+</div>
+
+<div class="grip" id="grip">
+  <span class="glabel" id="glabel"></span>
+  <span class="grip-bar"></span>
+  <span class="gdots" id="gdots"></span>
 </div>
 
 </div><!-- /left-col -->
@@ -570,6 +596,106 @@ const MP=95,MF=60,MC=370,MS=10;
 const MAINTBL={"エネルギー調整食1200": ["米飯", 110, "推定"], "エネルギー調整食1280": ["米飯", 120, "推定"], "エネルギー調整食1360": ["米飯", 130, "推定"], "エネルギー調整食1440": ["米飯", 140, "推定"], "エネルギー調整食1520": ["米飯", 150, "推定"], "エネルギー調整食1600": ["米飯", 160, "推定"], "エネルギー調整食1680": ["米飯", 170, "推定"], "エネルギー調整食1760": ["米飯", 180, "推定"], "エネルギー調整食1840": ["米飯", 190, "推定"], "エネルギー調整食1920": ["米飯", 200, "推定"], "エネルギー調整食2000": ["米飯", 220, "推定"], "エネルギー調整食2080": ["米飯", 230, "推定"], "エネルギー調整食2160": ["米飯", 240, "推定"], "エネルギー調整食800ライト": ["米飯", 80, "推定"], "調整食塩分6/1400": ["米飯", 120, "実測"], "調整食塩分6/1600": ["米飯", 180, "実測"], "調整食塩分6/1800": ["米飯", 250, "実測"], "調整食塩分ライト3g/800": ["米飯", 90, "実測"], "心不全食塩分6/1400": ["米飯", 120, "実測"], "心不全食塩分6/1600": ["米飯", 180, "実測"], "心不全食塩分6/1800": ["米飯", 250, "実測"], "腎調整食タンパク40/1400": ["米飯", 150, "実測"], "腎調整食タンパク40/1600": ["米飯", 150, "実測"], "腎調整食タンパク40/1800": ["米飯", 180, "実測"], "腎調整食タンパク50/1800": ["米飯", 180, "実測"], "腎調整食タンパク50/2000": ["米飯", 200, "実測"], "糖腎調整食P40/1600": ["米飯", 150, "実測"], "糖腎調整食P40/1800": ["米飯", 180, "実測"], "糖腎調整食P40/1800(2)": ["米飯", 180, "実測"], "糖腎調整食P50/1800": ["米飯", 180, "実測"], "糖腎調整食P50/2000": ["米飯", 200, "実測"], "透析食タンパク50/1600": ["米飯", 150, "実測"], "透析食タンパク60/2000": ["米飯", 200, "実測"], "肝臓食A1600": ["米飯", 160, "実測"], "肝臓食B1800": ["米飯", 200, "実測"], "肝臓食C2000": ["米飯", 250, "実測"], "肝臓食800": ["米飯", 80, "実測"], "肝調整食タンパク20/1200": ["米飯", 150, "実測"], "肝調整食タンパク40/1400": ["米飯", 150, "実測"], "肝調整食タンパク40/1200": ["米飯", 150, "実測"], "貧血食1400": ["米飯", 120, "実測"], "貧血食1600": ["米飯", 160, "実測"], "貧血食1800": ["米飯", 200, "実測"], "貧血食800": ["米飯", 80, "実測"], "膵・胆食Ⅰ500": ["重湯", 200, "推定"], "膵・胆食Ⅱ800": ["三分", 200, "推定"], "膵・胆食Ⅲ1200": ["五分", 250, "推定"], "膵・胆食Ⅳ1400": ["全粥", 300, "推定"], "膵・胆食Ⅳライト700": ["全粥", 150, "推定"], "注腸検査食": ["none", 0, "推定"], "CT食": ["none", 0, "推定"], "消)術後食流動400": ["重湯", 200, "基準"], "消)術後食三分1200": ["三分", 200, "基準"], "消)術後食三分600": ["三分", 200, "基準"], "消)術後食五分1400": ["五分", 250, "基準"], "消)術後食五分700": ["五分", 250, "基準"], "消)術後食七分1760": ["七分", 300, "基準"], "消)術後食全粥1870": ["全粥", 300, "基準"], "消)術後食全粥935": ["全粥", 300, "基準"], "消)術後食軟飯2040": ["軟飯", 240, "基準"], "消)術後食軟飯1020": ["軟飯", 240, "基準"], "消)術後食米飯2080": ["米飯", 200, "基準"], "消)術後食米飯1040": ["米飯", 200, "基準"], "潰瘍食流動340": ["重湯", 200, "基準"], "潰瘍食三分1320": ["三分", 200, "基準"], "潰瘍食三分ライト660": ["三分", 100, "基準"], "潰瘍食五分1360": ["五分", 250, "基準"], "潰瘍食七分1760": ["七分", 300, "基準"], "潰瘍食七分ライト880": ["七分", 150, "基準"], "潰瘍食全粥1870": ["全粥", 300, "基準"], "潰瘍食軟飯2040": ["軟飯", 240, "基準"], "潰瘍食軟飯ライト1020": ["軟飯", 120, "基準"], "潰瘍食米飯2080": ["米飯", 200, "基準"], "潰瘍食米飯ライト1040": ["米飯", 100, "基準"], "腸炎食流動400": ["重湯", 200, "基準"], "腸炎食三分500": ["三分", 200, "基準"], "腸炎食五分700": ["五分", 250, "基準"], "腸炎食五分350": ["五分", 250, "基準"], "腸炎食七分1100": ["七分", 300, "基準"], "腸炎食七分550": ["七分", 300, "基準"], "腸炎食全粥1400": ["全粥", 300, "基準"], "腸炎食全粥700": ["全粥", 300, "基準"], "腸炎食軟飯1900": ["軟飯", 240, "基準"], "腸炎食軟飯700": ["軟飯", 240, "基準"], "腸炎食米飯1900": ["米飯", 200, "基準"], "腸炎食米飯950": ["米飯", 200, "基準"], "低残渣食1300": ["米飯", 180, "実測"], "低残渣食600": ["米飯", 90, "実測"], "潰瘍性大腸炎食流動370": ["重湯", 200, "基準"], "潰瘍性大腸炎食三分600": ["三分", 200, "基準"], "潰瘍性大腸炎食五分1000": ["五分", 250, "基準"], "潰瘍性大腸炎食七分1200": ["七分", 300, "基準"], "潰瘍性大腸炎食全粥1500": ["全粥", 300, "基準"], "潰瘍性大腸炎食軟飯1800": ["軟飯", 240, "基準"], "潰瘍性大腸炎食米飯1800": ["米飯", 200, "基準"], "クローン食流動370": ["重湯", 200, "基準"], "クローン食三分600": ["三分", 200, "基準"], "クローン食五分1000": ["五分", 250, "基準"], "クローン食全粥1200": ["全粥", 300, "基準"], "クローン食全粥1500": ["全粥", 300, "基準"], "クローン食軟飯1800": ["軟飯", 240, "基準"], "クローン食米飯1800": ["米飯", 200, "基準"], "流動食700": ["重湯", 200, "基準"], "三分粥1200": ["三分", 200, "基準"], "三分粥600": ["三分", 200, "基準"], "五分粥1300": ["五分", 250, "基準"], "五分粥650": ["五分", 250, "基準"], "七分粥1600": ["七分", 300, "基準"], "七分粥800": ["七分", 300, "基準"], "全粥食1400": ["全粥", 300, "基準"], "全粥食1700": ["全粥", 300, "基準"], "全粥食850": ["全粥", 300, "基準"], "嚥下開始食ゼリー240": ["重湯", 100, "推定"], "嚥下食Ⅰ流動550": ["重湯", 200, "基準"], "嚥下食Ⅰライト275": ["重湯", 100, "推定"], "嚥下食ⅡミキサーⅡ1200": ["全粥", 240, "推定"], "嚥下食Ⅱミキサー600": ["全粥", 120, "推定"], "嚥下食Ⅲきざみ1200": ["全粥", 240, "推定"], "嚥下食Ⅲきざみ600": ["全粥", 120, "推定"], "嚥下食Ⅳ-ロ大1200": ["軟飯", 200, "推定"], "嚥下食Ⅳ-ロ大ライト600": ["軟飯", 100, "推定"], "常食1400": ["米飯", 120, "実測"], "常食1600": ["米飯", 160, "実測"], "常食1700": ["米飯", 180, "実測"], "常食1800": ["米飯", 200, "実測"], "常食2000": ["米飯", 250, "実測"], "常食800": ["米飯", 80, "実測"], "常食塩分6/1400": ["米飯", 120, "実測"], "常食塩分6/1600": ["米飯", 160, "実測"], "常食塩分6/2000": ["米飯", 250, "実測"], "学童食(6～9歳)1400": ["米飯", 150, "実測"], "学童食(10～12歳)1600": ["米飯", 200, "実測"], "幼児食(1.7～2歳)1000": ["米飯", 100, "実測"]};
 const MAINCOMP={"米飯":47,"軟飯":33,"全粥":20,"七分":15,"五分":10,"三分":7.5,"重湯":5,"none":0};
 const MEALS=3;
+/* ══ v1.3.4 詳細パネル ドラッグ取っ手 ══
+   段は固定pxではなく、表示中のブロックの下端を実測して組み立てる。
+   経腸単独時は摂取量ブロックが畳まれ電解質・コメントが出るため段構成が変わる。 */
+var gStops=[], gCur=99, gDrag=false, gY=0, gH0=0, gMoved=0;
+function gripOn(){
+  var g=document.getElementById('grip');
+  if(!g)return false;
+  if(window.matchMedia&&window.matchMedia('(min-width:640px)').matches)return false;
+  return document.getElementById('darea').classList.contains('show');
+}
+function gripMeasure(){
+  var d=document.getElementById('darea'), di=document.getElementById('di'),
+      g=document.getElementById('grip');
+  if(!gripOn()){gStops=[];return false;}
+  var pm=d.style.maxHeight, ph=d.style.height, ps=d.scrollTop;
+  d.style.maxHeight='none'; d.style.height='auto'; d.scrollTop=0;
+  var top=d.getBoundingClientRect().top, PAD=10, c=[];
+  function bot(el){return Math.round(el.getBoundingClientRect().bottom-top)+PAD;}
+  var ib=document.getElementById('intakeBlk'), sr=document.getElementById('saltRow');
+  if(ib&&ib.style.display!=='none'&&ib.offsetHeight>0)c.push(bot(ib));   /* 主食・副食バーの下 */
+  if(sr&&sr.offsetHeight>0)c.push(bot(sr));                             /* 食塩バーの下 */
+  if(di&&di.offsetHeight>0)c.push(bot(di));    /* 中身の最下端（供給源／電解質・コメントまで）*/
+  var vh=document.documentElement.clientHeight||window.innerHeight||844;
+  var MAX=Math.max(180, vh-top-(g.offsetHeight||26)-96);   /* リストを最低96px残す */
+  var out=[];
+  for(var i=0;i<c.length;i++){
+    var v=Math.min(c[i],MAX);
+    if(v>60&&(!out.length||v-out[out.length-1]>16))out.push(v);
+  }
+  d.style.maxHeight=pm; d.style.height=ph; d.scrollTop=ps;
+  gStops=out;
+  return out.length>0;
+}
+function gripName(i){
+  if(!gStops.length)return '';
+  if(i>=gStops.length-1)return '全体';
+  if(gStops.length>=3&&i===0)return '入力';
+  return '充足率';
+}
+function gripPaint(){
+  var b=document.getElementById('gdots'), l=document.getElementById('glabel');
+  if(b){var h='';for(var i=0;i<gStops.length;i++)h+='<b class="'+(i===gCur?'on':'')+'"></b>';b.innerHTML=h;}
+  if(l)l.textContent=gripName(gCur);
+}
+function gripApply(h,anim){
+  var d=document.getElementById('darea');
+  if(!gStops.length)return;
+  h=Math.max(gStops[0],Math.min(gStops[gStops.length-1],h));
+  d.classList.toggle('gsnap',!!anim);
+  d.style.maxHeight='none'; d.style.height=h+'px';
+}
+function gripSet(i,anim){
+  if(!gStops.length)return;
+  gCur=Math.max(0,Math.min(gStops.length-1,i));
+  gripApply(gStops[gCur],anim); gripPaint();
+}
+function gripNearest(h){
+  var b=0,bd=Infinity;
+  for(var i=0;i<gStops.length;i++){var x=Math.abs(gStops[i]-h);if(x<bd){bd=x;b=i;}}
+  return b;
+}
+function gripClear(){
+  var d=document.getElementById('darea');
+  if(!d)return;
+  d.style.height=''; d.style.maxHeight=''; d.classList.remove('gsnap');
+  gStops=[]; gCur=99; gripPaint();
+}
+/* 表示更新のたびに段を組み直す（段数が変わっても現在段を保つ・既定は最下段）*/
+function gripRefresh(){
+  if(!gripMeasure()){gripClear();return;}
+  gripSet(gCur>=gStops.length?gStops.length-1:gCur,false);
+}
+function gripBind(){
+  var g=document.getElementById('grip'); if(!g)return;
+  g.addEventListener('pointerdown',function(e){
+    if(!gStops.length)return;
+    gDrag=true;gMoved=0;g.classList.add('drag');
+    document.getElementById('darea').classList.remove('gsnap');
+    gY=e.clientY;gH0=document.getElementById('darea').offsetHeight;
+    if(g.setPointerCapture)g.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  g.addEventListener('pointermove',function(e){
+    if(!gDrag)return;
+    var dy=e.clientY-gY; gMoved=Math.max(gMoved,Math.abs(dy));
+    gripApply(gH0+dy,false);
+    var l=document.getElementById('glabel');
+    if(l)l.textContent=gripName(gripNearest(document.getElementById('darea').offsetHeight));
+    e.preventDefault();
+  });
+  function up(){
+    if(!gDrag)return;
+    gDrag=false;g.classList.remove('drag');
+    if(gMoved<6)gripSet((gCur+1)%gStops.length,true);          /* タップ＝次の段へ */
+    else gripSet(gripNearest(document.getElementById('darea').offsetHeight),true);
+  }
+  g.addEventListener('pointerup',up);
+  g.addEventListener('pointercancel',up);
+  window.addEventListener('resize',function(){if(gStops.length)gripRefresh();});
+}
 const ENT_TAGS=["消化態","成分栄養","半固形","逆流防止","腎","肝","糖尿病用"];
 function isEnteral(x){return x.type==="医薬品"||x.tags.some(function(t){return ENT_TAGS.indexOf(t)>=0;});}
 function srcSplit(){
@@ -873,7 +999,7 @@ function renderCombo(){
   document.getElementById('d-kn').textContent=Math.round(R.kcal);
   document.getElementById('d-cat').textContent = nNutr? (selIdx!=null? d.mealCat+' \uFF0B 経腸栄養':'経腸栄養/補助食品') : d.mealCat;
   document.getElementById('d-name').innerHTML=d.parts.join(' \uFF0B ');
-  document.getElementById('d-pie').innerHTML=makePieSVG(R.P,R.F,R.C,64);
+  document.getElementById('d-pie').innerHTML=makePieSVG(R.P,R.F,R.C,52);
   document.getElementById('vp').textContent=r1(R.P);
   document.getElementById('vf').textContent=r1(R.F);
   document.getElementById('vc').textContent=r1(R.C);
@@ -898,6 +1024,7 @@ function renderCombo(){
   });
   renderElecCmt(d,R);
   renderSrc();
+  requestAnimationFrame(gripRefresh);
 }
 function renderElecCmt(d,IN){
   const box=document.getElementById('d-extra');
@@ -917,11 +1044,11 @@ function renderElecCmt(d,IN){
     document.getElementById('e-p').textContent=R(IN.pTray);
   }
   let cm='', c=d.mealCat||'';
-  if(c.includes('腎'))cm+='<div class="ci2"><span>\U0001F9C2</span><span><b>腎・糖尿病食</b>：K・リンが管理対象。栄養剤由来 K計'+R(IN.kTray)+'／P計'+R(IN.pTray)+'mg（栄養剤由来の実測値です）。</span></div>';
-  else if(c.includes('塩分'))cm+='<div class="ci2"><span>\U0001F4A7</span><span><b>塩分制限</b>：Na・水分が管理対象。Na計'+R(IN.na)+'mg、栄養剤水分計'+R(IN.waterTray)+'mL。</span></div>';
-  else if(c.includes('肝'))cm+='<div class="ci2"><span>\U0001F537</span><span><b>肝疾患</b>：BCAA配合品を優先すると相性良好。</span></div>';
+  if(c.includes('腎'))cm+='<div class="ci2"><span>🧂</span><span><b>腎・糖尿病食</b>：K・リンが管理対象。栄養剤由来 K計'+R(IN.kTray)+'／P計'+R(IN.pTray)+'mg（栄養剤由来の実測値です）。</span></div>';
+  else if(c.includes('塩分'))cm+='<div class="ci2"><span>💧</span><span><b>塩分制限</b>：Na・水分が管理対象。Na計'+R(IN.na)+'mg、栄養剤水分計'+R(IN.waterTray)+'mL。</span></div>';
+  else if(c.includes('肝'))cm+='<div class="ci2"><span>🔷</span><span><b>肝疾患</b>：BCAA配合品を優先すると相性良好。</span></div>';
   if(d.als.length)cm+='<div class="ci2"><span>\u26A0</span><span>アレルギー：'+d.als.join('・')+'</span></div>';
-  cm+='<div class="ci2"><span>\U0001F48A</span><span>栄養剤'+Object.keys(trayN).length+'品を使用中。単独長期はビタミン・微量元素の不足に注意。</span></div>';
+  cm+='<div class="ci2"><span>💊</span><span>栄養剤'+Object.keys(trayN).length+'品を使用中。単独長期はビタミン・微量元素の不足に注意。</span></div>';
   document.getElementById('d-cmt').innerHTML=cm;
   let w='';
   if(c.includes('腎')){const hiK=Object.keys(trayN).some(i=>NUTR[i].k>300);if(hiK)w='\u26A0 腎機能に配慮中ですが、<b>高カリウムの栄養剤</b>（マーメッドワン等 K&gt;300mg/本）が入っています。K負荷にご注意を。低K設計のリーナレンが候補です。';}
@@ -946,7 +1073,7 @@ function buildNutrUI(){
   const area=document.getElementById('larea');
   const bl=document.createElement('div'); bl.className='cb col'; bl.dataset.cat='経腸栄養/補助食品';
   const hd=document.createElement('div'); hd.className='ch';
-  hd.innerHTML='<span class="cl">\U0001F48A 経腸栄養/補助食品</span><span class="cn">'+NUTR.length+'</span><span class="cv">\u25BC</span>';
+  hd.innerHTML='<span class="cl">💊 経腸栄養/補助食品</span><span class="cn">'+NUTR.length+'</span><span class="cv">\u25BC</span>';
   hd.onclick=()=>bl.classList.toggle('col'); bl.appendChild(hd);
   const body=document.createElement('div'); body.className='cb-body';
   const grid=document.createElement('div'); grid.className='dg';
@@ -963,6 +1090,7 @@ function buildNutrUI(){
 }
 
 function hideDetail(){
+  gripClear();
   document.getElementById('darea').classList.remove('show');
   setTimeout(()=>{
     document.getElementById('nosel').style.display='';
@@ -1065,5 +1193,7 @@ calcAll();
   });
 })();
 </script>
+
+<script>document.addEventListener("DOMContentLoaded",function(){if(typeof gripBind==="function")gripBind();});</script>
 </body>
 </html>
