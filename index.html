@@ -317,7 +317,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 <div class="app">
 
 <header class="hdr">
-  <div class="logo">給食成分表<span>Diet Calc</span><span class="ver">v1.3.0</span></div>
+  <div class="logo">給食成分表<span>Diet Calc</span><span class="ver">v1.3.1</span></div>
   <div class="sw">
     <input type="search" id="srch" placeholder="食種名で検索…" autocomplete="off" oninput="onSearch(this.value)">
     <span class="sw-x" onclick="clearSearch()">✕</span>
@@ -567,7 +567,7 @@ function toggleSrc(){var el=document.getElementById("srcPfc"),t=document.getElem
   var open=el.style.display==="none";el.style.display=open?"block":"none";
   t.textContent=open?"[-] PFC内訳":"[+] PFC内訳";}
 
-let sex='m', ht=165, wt=60, age=65, aI=1, sI=0, selIdx=null, tgt=null, trayN={};
+let sex='m', ht=165, wt=60, age=65, aI=1, sI=0, selIdx=null, tgt=null, trayN={}, sM=1, sS=1;
 
 /* ── Generic numeric stepper with long-press ── */
 function bindNum(key, min, max, getV, setV){
@@ -736,6 +736,7 @@ function refreshTileMarks(){
 }
 
 function selectItem(i){
+  sM=1;sS=1;
   if(selIdx!==null){ const p=document.getElementById(`dc-${selIdx}`); if(p)p.classList.remove('on'); }
   if(selIdx===i){ selIdx=null; }
   else { selIdx=i; const c=document.getElementById(`dc-${i}`); if(c){c.classList.add('on');c.classList.remove('mh');} }
