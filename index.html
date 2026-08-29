@@ -210,6 +210,22 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 .nv .nu{font-size:9px;color:var(--text3)}
 .nv .np{font-size:9px;color:var(--text2);min-width:28px;text-align:right}
 .nosel{padding:13px;display:flex;align-items:center;gap:8px;color:var(--text3);font-size:12px}
+/* v1.3.0 kyokyugen bar */
+.srcbox{margin:8px 10px 0;padding:8px 10px;background:var(--panel);border:1px solid var(--border);border-radius:9px}
+.src-hd{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.04em;display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.src-note{color:var(--text3);font-weight:400}
+.src-tgl{margin-left:auto;color:var(--accent);cursor:pointer;font-weight:700}
+.src-kbar{display:flex;height:20px;border-radius:6px;overflow:hidden;background:#eef2f8}
+.skf{height:100%;transition:width .45s cubic-bezier(.4,0,.2,1)}
+.skf.m{background:#e59a2e}.skf.o{background:#0a9d82}.skf.e{background:#2b7fe0}
+.src-leg{font-size:10px;color:var(--text2);margin-top:5px;display:flex;justify-content:space-between}
+.srcbox.approx .src-kbar,.srcbox.approx .spbar{background-image:repeating-linear-gradient(45deg,#eef2f8,#eef2f8 4px,rgba(224,75,75,.16) 4px,rgba(224,75,75,.16) 8px)}
+.srcPfc{margin-top:8px;display:flex;flex-direction:column;gap:5px}
+.spr{display:flex;align-items:center;gap:7px}
+.spk{width:16px;font-size:9px;color:var(--text2);font-weight:700}
+.spbar{flex:1;display:flex;height:12px;border-radius:999px;overflow:hidden;background:#eef2f8}
+.src-mini{font-size:9px;color:var(--text3);margin-top:3px}
+
 
 /* ══ List ══ */
 .larea{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:var(--bg)}
@@ -301,7 +317,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 <div class="app">
 
 <header class="hdr">
-  <div class="logo">給食成分表<span>Diet Calc</span><span class="ver">v1.2.1</span></div>
+  <div class="logo">給食成分表<span>Diet Calc</span><span class="ver">v1.3.0</span></div>
   <div class="sw">
     <input type="search" id="srch" placeholder="食種名で検索…" autocomplete="off" oninput="onSearch(this.value)">
     <span class="sw-x" onclick="clearSearch()">✕</span>
@@ -434,6 +450,17 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
       <div class="nr"><span class="nk">炭水化物</span>  <div class="nt"><div class="nf c" id="bc" style="width:0%"></div></div><span class="nv"><b id="vc">—</b><span class="nu">g</span><span class="np" id="cp">—</span></span></div>
       <div class="nr"><span class="nk">食　塩</span>    <div class="nt"><div class="nf s" id="bs" style="width:0%"></div></div><span class="nv"><b id="vs">—</b><span class="nu">g</span><span class="np"></span></span></div>
     </div>
+    <div class="srcbox" id="srcbox">
+      <div class="src-hd">供給源<span class="src-note">主食/副食/経腸</span><span class="src-tgl" id="srcTgl" onclick="toggleSrc()">[+] PFC内訳</span></div>
+      <div class="src-kbar"><div class="skf m" id="sb-m" style="width:0%"></div><div class="skf o" id="sb-o" style="width:0%"></div><div class="skf e" id="sb-e" style="width:0%"></div></div>
+      <div class="src-leg" id="sb-leg">-</div>
+      <div class="srcPfc" id="srcPfc" style="display:none">
+        <div class="spr"><span class="spk">蛋</span><div class="spbar"><div class="skf m" id="sp-m"></div><div class="skf o" id="sp-o"></div><div class="skf e" id="sp-e"></div></div></div>
+        <div class="spr"><span class="spk">脂</span><div class="spbar"><div class="skf m" id="sf-m"></div><div class="skf o" id="sf-o"></div><div class="skf e" id="sf-e"></div></div></div>
+        <div class="spr"><span class="spk">糖</span><div class="spbar"><div class="skf m" id="sc-m"></div><div class="skf o" id="sc-o"></div><div class="skf e" id="sc-e"></div></div></div>
+        <div class="src-mini">主食=米 / 副食=緑（おかず＋補助食品）/ 経腸=青</div>
+      </div>
+    </div>
     <div class="d-extra" id="d-extra" style="display:none">
       <div class="stitle">電解質・水分（経腸栄養/補助食品）</div>
       <div class="elec">
@@ -499,6 +526,47 @@ const NUTR=[
  {name:'リーバクト経口ゼリー',type:'医薬品',kcal:17,prot:4.0,fat:0,carb:0,salt:0,na:0,k:0,ph:0,water:0,tags:['BCAA'],al:''},
 ];
 const MP=95,MF=60,MC=370,MS=10;
+const MAINTBL={"エネルギー調整食1200": ["米飯", 110, "推定"], "エネルギー調整食1280": ["米飯", 120, "推定"], "エネルギー調整食1360": ["米飯", 130, "推定"], "エネルギー調整食1440": ["米飯", 140, "推定"], "エネルギー調整食1520": ["米飯", 150, "推定"], "エネルギー調整食1600": ["米飯", 160, "推定"], "エネルギー調整食1680": ["米飯", 170, "推定"], "エネルギー調整食1760": ["米飯", 180, "推定"], "エネルギー調整食1840": ["米飯", 190, "推定"], "エネルギー調整食1920": ["米飯", 200, "推定"], "エネルギー調整食2000": ["米飯", 220, "推定"], "エネルギー調整食2080": ["米飯", 230, "推定"], "エネルギー調整食2160": ["米飯", 240, "推定"], "エネルギー調整食800ライト": ["米飯", 80, "推定"], "調整食塩分6/1400": ["米飯", 120, "実測"], "調整食塩分6/1600": ["米飯", 180, "実測"], "調整食塩分6/1800": ["米飯", 250, "実測"], "調整食塩分ライト3g/800": ["米飯", 90, "実測"], "心不全食塩分6/1400": ["米飯", 120, "実測"], "心不全食塩分6/1600": ["米飯", 180, "実測"], "心不全食塩分6/1800": ["米飯", 250, "実測"], "腎調整食タンパク40/1400": ["米飯", 150, "実測"], "腎調整食タンパク40/1600": ["米飯", 150, "実測"], "腎調整食タンパク40/1800": ["米飯", 180, "実測"], "腎調整食タンパク50/1800": ["米飯", 180, "実測"], "腎調整食タンパク50/2000": ["米飯", 200, "実測"], "糖腎調整食P40/1600": ["米飯", 150, "実測"], "糖腎調整食P40/1800": ["米飯", 180, "実測"], "糖腎調整食P40/1800(2)": ["米飯", 180, "実測"], "糖腎調整食P50/1800": ["米飯", 180, "実測"], "糖腎調整食P50/2000": ["米飯", 200, "実測"], "透析食タンパク50/1600": ["米飯", 150, "実測"], "透析食タンパク60/2000": ["米飯", 200, "実測"], "肝臓食A1600": ["米飯", 160, "実測"], "肝臓食B1800": ["米飯", 200, "実測"], "肝臓食C2000": ["米飯", 250, "実測"], "肝臓食800": ["米飯", 80, "実測"], "肝調整食タンパク20/1200": ["米飯", 150, "実測"], "肝調整食タンパク40/1400": ["米飯", 150, "実測"], "肝調整食タンパク40/1200": ["米飯", 150, "実測"], "貧血食1400": ["米飯", 120, "実測"], "貧血食1600": ["米飯", 160, "実測"], "貧血食1800": ["米飯", 200, "実測"], "貧血食800": ["米飯", 80, "実測"], "膵・胆食Ⅰ500": ["重湯", 200, "推定"], "膵・胆食Ⅱ800": ["三分", 200, "推定"], "膵・胆食Ⅲ1200": ["五分", 250, "推定"], "膵・胆食Ⅳ1400": ["全粥", 300, "推定"], "膵・胆食Ⅳライト700": ["全粥", 150, "推定"], "注腸検査食": ["none", 0, "推定"], "CT食": ["none", 0, "推定"], "消)術後食流動400": ["重湯", 200, "基準"], "消)術後食三分1200": ["三分", 200, "基準"], "消)術後食三分600": ["三分", 200, "基準"], "消)術後食五分1400": ["五分", 250, "基準"], "消)術後食五分700": ["五分", 250, "基準"], "消)術後食七分1760": ["七分", 300, "基準"], "消)術後食全粥1870": ["全粥", 300, "基準"], "消)術後食全粥935": ["全粥", 300, "基準"], "消)術後食軟飯2040": ["軟飯", 240, "基準"], "消)術後食軟飯1020": ["軟飯", 240, "基準"], "消)術後食米飯2080": ["米飯", 200, "基準"], "消)術後食米飯1040": ["米飯", 200, "基準"], "潰瘍食流動340": ["重湯", 200, "基準"], "潰瘍食三分1320": ["三分", 200, "基準"], "潰瘍食三分ライト660": ["三分", 100, "基準"], "潰瘍食五分1360": ["五分", 250, "基準"], "潰瘍食七分1760": ["七分", 300, "基準"], "潰瘍食七分ライト880": ["七分", 150, "基準"], "潰瘍食全粥1870": ["全粥", 300, "基準"], "潰瘍食軟飯2040": ["軟飯", 240, "基準"], "潰瘍食軟飯ライト1020": ["軟飯", 120, "基準"], "潰瘍食米飯2080": ["米飯", 200, "基準"], "潰瘍食米飯ライト1040": ["米飯", 100, "基準"], "腸炎食流動400": ["重湯", 200, "基準"], "腸炎食三分500": ["三分", 200, "基準"], "腸炎食五分700": ["五分", 250, "基準"], "腸炎食五分350": ["五分", 250, "基準"], "腸炎食七分1100": ["七分", 300, "基準"], "腸炎食七分550": ["七分", 300, "基準"], "腸炎食全粥1400": ["全粥", 300, "基準"], "腸炎食全粥700": ["全粥", 300, "基準"], "腸炎食軟飯1900": ["軟飯", 240, "基準"], "腸炎食軟飯700": ["軟飯", 240, "基準"], "腸炎食米飯1900": ["米飯", 200, "基準"], "腸炎食米飯950": ["米飯", 200, "基準"], "低残渣食1300": ["米飯", 180, "実測"], "低残渣食600": ["米飯", 90, "実測"], "潰瘍性大腸炎食流動370": ["重湯", 200, "基準"], "潰瘍性大腸炎食三分600": ["三分", 200, "基準"], "潰瘍性大腸炎食五分1000": ["五分", 250, "基準"], "潰瘍性大腸炎食七分1200": ["七分", 300, "基準"], "潰瘍性大腸炎食全粥1500": ["全粥", 300, "基準"], "潰瘍性大腸炎食軟飯1800": ["軟飯", 240, "基準"], "潰瘍性大腸炎食米飯1800": ["米飯", 200, "基準"], "クローン食流動370": ["重湯", 200, "基準"], "クローン食三分600": ["三分", 200, "基準"], "クローン食五分1000": ["五分", 250, "基準"], "クローン食全粥1200": ["全粥", 300, "基準"], "クローン食全粥1500": ["全粥", 300, "基準"], "クローン食軟飯1800": ["軟飯", 240, "基準"], "クローン食米飯1800": ["米飯", 200, "基準"], "流動食700": ["重湯", 200, "基準"], "三分粥1200": ["三分", 200, "基準"], "三分粥600": ["三分", 200, "基準"], "五分粥1300": ["五分", 250, "基準"], "五分粥650": ["五分", 250, "基準"], "七分粥1600": ["七分", 300, "基準"], "七分粥800": ["七分", 300, "基準"], "全粥食1400": ["全粥", 300, "基準"], "全粥食1700": ["全粥", 300, "基準"], "全粥食850": ["全粥", 300, "基準"], "嚥下開始食ゼリー240": ["重湯", 100, "推定"], "嚥下食Ⅰ流動550": ["重湯", 200, "基準"], "嚥下食Ⅰライト275": ["重湯", 100, "推定"], "嚥下食ⅡミキサーⅡ1200": ["全粥", 240, "推定"], "嚥下食Ⅱミキサー600": ["全粥", 120, "推定"], "嚥下食Ⅲきざみ1200": ["全粥", 240, "推定"], "嚥下食Ⅲきざみ600": ["全粥", 120, "推定"], "嚥下食Ⅳ-ロ大1200": ["軟飯", 200, "推定"], "嚥下食Ⅳ-ロ大ライト600": ["軟飯", 100, "推定"], "常食1400": ["米飯", 120, "実測"], "常食1600": ["米飯", 160, "実測"], "常食1700": ["米飯", 180, "実測"], "常食1800": ["米飯", 200, "実測"], "常食2000": ["米飯", 250, "実測"], "常食800": ["米飯", 80, "実測"], "常食塩分6/1400": ["米飯", 120, "実測"], "常食塩分6/1600": ["米飯", 160, "実測"], "常食塩分6/2000": ["米飯", 250, "実測"], "学童食(6～9歳)1400": ["米飯", 150, "実測"], "学童食(10～12歳)1600": ["米飯", 200, "実測"], "幼児食(1.7～2歳)1000": ["米飯", 100, "実測"]};
+const MAINCOMP={"米飯":47,"軟飯":33,"全粥":20,"七分":15,"五分":10,"三分":7.5,"重湯":5,"none":0};
+const ENT_TAGS=["消化態","成分栄養","半固形","逆流防止","腎","肝","糖尿病用"];
+function isEnteral(x){return x.type==="医薬品"||x.tags.some(function(t){return ENT_TAGS.indexOf(t)>=0;});}
+function srcSplit(){
+  var m={P:0,F:0,C:0};
+  if(typeof selIdx!=="undefined"&&selIdx!=null){
+    var d=DB[selIdx],t=MAINTBL[d.name];
+    if(t&&t[0]!=="none"){var r=MAINCOMP[t[0]],k=t[1]/100*r/47;m={P:2.5*k,F:0.3*k,C:37.1*k};}
+  }
+  var side={P:0,F:0,C:0},ent={P:0,F:0,C:0};
+  if(typeof selIdx!=="undefined"&&selIdx!=null){
+    var dd=DB[selIdx];
+    side.P=Math.max(0,dd.prot-m.P);side.F=Math.max(0,dd.fat-m.F);side.C=Math.max(0,dd.carb-m.C);
+  }
+  for(var i in trayN){var x=NUTR[i],q=trayN[i],g=isEnteral(x)?ent:side;g.P+=x.prot*q;g.F+=x.fat*q;g.C+=x.carb*q;}
+  return {main:m,side:side,ent:ent};
+}
+function _kc(o){return o.P*4+o.F*9+o.C*4;}
+function renderSrc(){
+  var box=document.getElementById("srcbox");if(!box)return;
+  var s=srcSplit(),mk=_kc(s.main),ok=_kc(s.side),ek=_kc(s.ent),tot=mk+ok+ek||1;
+  document.getElementById("sb-m").style.width=(mk/tot*100)+"%";
+  document.getElementById("sb-o").style.width=(ok/tot*100)+"%";
+  document.getElementById("sb-e").style.width=(ek/tot*100)+"%";
+  document.getElementById("sb-leg").innerHTML="<span>主食 "+Math.round(mk)+"</span><span>副食 "+Math.round(ok)+"</span><span>経腸 "+Math.round(ek)+" kcal</span>";
+  var integ=true;
+  if(selIdx!=null){var dd=DB[selIdx];integ=Math.abs(dd.prot*4+dd.fat*9+dd.carb*4-dd.kcal)<50;}
+  box.classList.toggle("approx",!integ);
+  function rw(pre,vm,vo,ve){var t=vm+vo+ve||1;
+    document.getElementById(pre+"-m").style.width=(vm/t*100)+"%";
+    document.getElementById(pre+"-o").style.width=(vo/t*100)+"%";
+    document.getElementById(pre+"-e").style.width=(ve/t*100)+"%";}
+  rw("sp",s.main.P,s.side.P,s.ent.P);
+  rw("sf",s.main.F,s.side.F,s.ent.F);
+  rw("sc",s.main.C,s.side.C,s.ent.C);
+}
+function toggleSrc(){var el=document.getElementById("srcPfc"),t=document.getElementById("srcTgl");
+  var open=el.style.display==="none";el.style.display=open?"block":"none";
+  t.textContent=open?"[-] PFC内訳":"[+] PFC内訳";}
+
 let sex='m', ht=165, wt=60, age=65, aI=1, sI=0, selIdx=null, tgt=null, trayN={};
 
 /* ── Generic numeric stepper with long-press ── */
@@ -733,6 +801,7 @@ function renderCombo(){
     document.getElementById('bs').style.width=Math.min(100,d.salt/MS*100)+'%';
   });
   renderElecCmt(d);
+  renderSrc();
 }
 function renderElecCmt(d){
   const box=document.getElementById('d-extra');
