@@ -195,6 +195,28 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 .larea{flex:1}
 
 /* Compact nutrient bars */
+/* v1.3.1 摂取量（入力）ブロック */
+.intake{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:9px 10px 10px;margin:12px 0}
+.intake-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.intake-ttl{font-size:11px;font-weight:800;color:var(--text)}
+.intake-ttl .tag{font-size:8.5px;color:var(--text3);font-weight:600;margin-left:5px}
+.intake-reset{font-size:10px;color:var(--accent);font-weight:700;cursor:pointer;user-select:none;-webkit-user-select:none}
+.intake-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.icol{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 9px 9px}
+.icol-hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+.icol-lbl{font-size:11px;font-weight:800;color:var(--text)}
+.icol-val{font-size:18px;font-weight:800;line-height:1}
+.icol-val .u{font-size:10px;font-weight:700;color:var(--text3);margin-left:1px}
+.icol.cmain .icol-lbl,.icol.cmain .icol-val{color:var(--amber)}
+.icol.cside .icol-lbl,.icol.cside .icol-val{color:var(--accent2)}
+.icol input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:5px;background:var(--border);outline:none;margin:2px 0}
+.icol.cmain input[type=range]{accent-color:var(--amber)}
+.icol.cside input[type=range]{accent-color:var(--accent2)}
+.icol input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--text3);box-shadow:0 1px 3px rgba(0,0,0,.18);cursor:pointer}
+.icol.cmain input[type=range]::-webkit-slider-thumb{border-color:var(--amber)}
+.icol.cside input[type=range]::-webkit-slider-thumb{border-color:var(--accent2)}
+.icol .ticks{display:flex;justify-content:space-between;font-size:8px;color:var(--text3);margin-top:1px}
+.intake-foot{font-size:9px;color:var(--text2);margin-top:8px}
 .nbars{display:flex;flex-direction:column;gap:5px}
 .nr{display:flex;align-items:center;gap:6px}
 .nk{width:46px;font-size:9px;color:var(--text2);font-weight:700;flex-shrink:0}
@@ -444,6 +466,25 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
         <div class="dbadge" id="dbadge"></div>
       </div>
     </div>
+    <div class="intake" id="intakeBlk" style="display:none">
+      <div class="intake-hd">
+        <div class="intake-ttl">摂取量（入力）<span class="tag">看護記録の主食◯割・副食◯割</span></div>
+        <div class="intake-reset" onclick="resetIntake()">↺ 10割</div>
+      </div>
+      <div class="intake-grid" id="intakeGrid">
+        <div class="icol cmain" id="intakeMain">
+          <div class="icol-hd"><span class="icol-lbl">主食</span><span class="icol-val"><span id="mv">10</span><span class="u">割</span></span></div>
+          <input type="range" min="0" max="10" step="1" value="10" id="ms" oninput="setIntakeM(this.value)">
+          <div class="ticks"><span>0</span><span>5</span><span>10</span></div>
+        </div>
+        <div class="icol cside" id="intakeSide">
+          <div class="icol-hd"><span class="icol-lbl">副食</span><span class="icol-val"><span id="sv">10</span><span class="u">割</span></span></div>
+          <input type="range" min="0" max="10" step="1" value="10" id="ss" oninput="setIntakeS(this.value)">
+          <div class="ticks"><span>0</span><span>5</span><span>10</span></div>
+        </div>
+      </div>
+      <div class="intake-foot">※ 補助食品・経腸栄養は常に10割で加算されます</div>
+    </div>
     <div class="nbars">
       <div class="nr"><span class="nk">たんぱく質</span><div class="nt"><div class="nf p" id="bp" style="width:0%"></div></div><span class="nv"><b id="vp">—</b><span class="nu">g</span><span class="np" id="pp">—</span></span></div>
       <div class="nr"><span class="nk">脂　質</span>    <div class="nt"><div class="nf f" id="bf" style="width:0%"></div></div><span class="nv"><b id="vf">—</b><span class="nu">g</span><span class="np" id="fp">—</span></span></div>
@@ -536,18 +577,49 @@ function srcSplit(){
     var d=DB[selIdx],t=MAINTBL[d.name];
     if(t&&t[0]!=="none"){var r=MAINCOMP[t[0]],k=t[1]/100*r/47;m={P:2.5*k,F:0.3*k,C:37.1*k};}
   }
-  var side={P:0,F:0,C:0},ent={P:0,F:0,C:0};
+  var okazu={P:0,F:0,C:0},supp={P:0,F:0,C:0},ent={P:0,F:0,C:0};
   if(typeof selIdx!=="undefined"&&selIdx!=null){
     var dd=DB[selIdx];
-    side.P=Math.max(0,dd.prot-m.P);side.F=Math.max(0,dd.fat-m.F);side.C=Math.max(0,dd.carb-m.C);
+    okazu.P=Math.max(0,dd.prot-m.P);okazu.F=Math.max(0,dd.fat-m.F);okazu.C=Math.max(0,dd.carb-m.C);
   }
-  for(var i in trayN){var x=NUTR[i],q=trayN[i],g=isEnteral(x)?ent:side;g.P+=x.prot*q;g.F+=x.fat*q;g.C+=x.carb*q;}
-  return {main:m,side:side,ent:ent};
+  for(var i in trayN){var x=NUTR[i],q=trayN[i],g=isEnteral(x)?ent:supp;g.P+=x.prot*q;g.F+=x.fat*q;g.C+=x.carb*q;}
+  return {main:m,okazu:okazu,supp:supp,ent:ent};
 }
 function _kc(o){return o.P*4+o.F*9+o.C*4;}
+/* v1.3.1 実摂取：主食*sM+おかず*sS+補助食品(満額)+経腸(満額)。
+   kcalは表示kcalベースから食べ残し分(PFC由来)を差し引く=sM=sS=1で表示kcalに一致。 */
+function realIntake(){
+  var s=srcSplit();
+  var P=s.main.P*sM+s.okazu.P*sS+s.supp.P+s.ent.P;
+  var F=s.main.F*sM+s.okazu.F*sS+s.supp.F+s.ent.F;
+  var C=s.main.C*sM+s.okazu.C*sS+s.supp.C+s.ent.C;
+  var foodK=0,trayK=0;
+  if(selIdx!=null)foodK=DB[selIdx].kcal;
+  for(var i in trayN)trayK+=NUTR[i].kcal*trayN[i];
+  var kcal=foodK - _kc(s.main)*(1-sM) - _kc(s.okazu)*(1-sS) + trayK;
+  return {P:P,F:F,C:C,kcal:kcal};
+}
+function renderIntakeUI(){
+  var blk=document.getElementById('intakeBlk');if(!blk)return;
+  if(selIdx==null){blk.style.display='none';return;}
+  blk.style.display='block';
+  var t=MAINTBL[DB[selIdx].name], noMain=(!t||t[0]==='none');
+  document.getElementById('intakeMain').style.display=noMain?'none':'';
+  document.getElementById('intakeGrid').style.gridTemplateColumns=noMain?'1fr':'1fr 1fr';
+  var mm=Math.round(sM*10), sd=Math.round(sS*10);
+  document.getElementById('ms').value=mm;document.getElementById('mv').textContent=mm;
+  document.getElementById('ss').value=sd;document.getElementById('sv').textContent=sd;
+}
+function setIntakeM(v){sM=(+v)/10;document.getElementById('mv').textContent=v;renderCombo();}
+function setIntakeS(v){sS=(+v)/10;document.getElementById('sv').textContent=v;renderCombo();}
+function resetIntake(){sM=1;sS=1;renderCombo();}
 function renderSrc(){
   var box=document.getElementById("srcbox");if(!box)return;
-  var s=srcSplit(),mk=_kc(s.main),ok=_kc(s.side),ek=_kc(s.ent),tot=mk+ok+ek||1;
+  var s=srcSplit();
+  var main={P:s.main.P*sM,F:s.main.F*sM,C:s.main.C*sM};
+  var side={P:s.okazu.P*sS+s.supp.P,F:s.okazu.F*sS+s.supp.F,C:s.okazu.C*sS+s.supp.C};
+  var ent=s.ent;
+  var mk=_kc(main),ok=_kc(side),ek=_kc(ent),tot=mk+ok+ek||1;
   document.getElementById("sb-m").style.width=(mk/tot*100)+"%";
   document.getElementById("sb-o").style.width=(ok/tot*100)+"%";
   document.getElementById("sb-e").style.width=(ek/tot*100)+"%";
@@ -559,9 +631,9 @@ function renderSrc(){
     document.getElementById(pre+"-m").style.width=(vm/t*100)+"%";
     document.getElementById(pre+"-o").style.width=(vo/t*100)+"%";
     document.getElementById(pre+"-e").style.width=(ve/t*100)+"%";}
-  rw("sp",s.main.P,s.side.P,s.ent.P);
-  rw("sf",s.main.F,s.side.F,s.ent.F);
-  rw("sc",s.main.C,s.side.C,s.ent.C);
+  rw("sp",main.P,side.P,ent.P);
+  rw("sf",main.F,side.F,ent.F);
+  rw("sc",main.C,side.C,ent.C);
 }
 function toggleSrc(){var el=document.getElementById("srcPfc"),t=document.getElementById("srcTgl");
   var open=el.style.display==="none";el.style.display=open?"block":"none";
@@ -778,27 +850,28 @@ function renderCombo(){
   document.getElementById('darea').classList.add('show');
   document.getElementById('nosel').style.display='none';
   document.getElementById('di').style.display='block';
-  const d=combo(), r1=v=>Math.round(v*10)/10, nNutr=Object.keys(trayN).length;
-  document.getElementById('d-kn').textContent=Math.round(d.kcal);
+  renderIntakeUI();
+  const d=combo(), R=realIntake(), r1=v=>Math.round(v*10)/10, nNutr=Object.keys(trayN).length;
+  document.getElementById('d-kn').textContent=Math.round(R.kcal);
   document.getElementById('d-cat').textContent = nNutr? (selIdx!=null? d.mealCat+' \uFF0B 経腸栄養':'経腸栄養/補助食品') : d.mealCat;
   document.getElementById('d-name').innerHTML=d.parts.join(' \uFF0B ');
-  document.getElementById('d-pie').innerHTML=makePieSVG(d.p,d.f,d.c,64);
-  document.getElementById('vp').textContent=r1(d.p);
-  document.getElementById('vf').textContent=r1(d.f);
-  document.getElementById('vc').textContent=r1(d.c);
+  document.getElementById('d-pie').innerHTML=makePieSVG(R.P,R.F,R.C,64);
+  document.getElementById('vp').textContent=r1(R.P);
+  document.getElementById('vf').textContent=r1(R.F);
+  document.getElementById('vc').textContent=r1(R.C);
   document.getElementById('vs').textContent=r1(d.salt);
-  if(d.kcal>0){
-    document.getElementById('pp').textContent=Math.round(d.p*4/d.kcal*100)+'%';
-    document.getElementById('fp').textContent=Math.round(d.f*9/d.kcal*100)+'%';
-    document.getElementById('cp').textContent=Math.round(d.c*4/d.kcal*100)+'%';
+  if(R.kcal>0){
+    document.getElementById('pp').textContent=Math.round(R.P*4/R.kcal*100)+'%';
+    document.getElementById('fp').textContent=Math.round(R.F*9/R.kcal*100)+'%';
+    document.getElementById('cp').textContent=Math.round(R.C*4/R.kcal*100)+'%';
   }
   const badge=document.getElementById('dbadge');
-  if(tgt){const pct=Math.round(d.kcal/tgt*100);badge.textContent='必要量 '+pct+'%';badge.className='dbadge show '+(pct>110?'over':pct<90?'low':'ok');}
+  if(tgt){const pct=Math.round(R.kcal/tgt*100);badge.textContent='必要量 '+pct+'%';badge.className='dbadge show '+(pct>110?'over':pct<90?'low':'ok');}
   else badge.className='dbadge';
   requestAnimationFrame(()=>{
-    document.getElementById('bp').style.width=Math.min(100,d.p/MP*100)+'%';
-    document.getElementById('bf').style.width=Math.min(100,d.f/MF*100)+'%';
-    document.getElementById('bc').style.width=Math.min(100,d.c/MC*100)+'%';
+    document.getElementById('bp').style.width=Math.min(100,R.P/MP*100)+'%';
+    document.getElementById('bf').style.width=Math.min(100,R.F/MF*100)+'%';
+    document.getElementById('bc').style.width=Math.min(100,R.C/MC*100)+'%';
     document.getElementById('bs').style.width=Math.min(100,d.salt/MS*100)+'%';
   });
   renderElecCmt(d);
