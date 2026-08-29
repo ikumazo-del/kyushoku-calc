@@ -179,7 +179,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 
 .darea{flex-shrink:0;background:var(--bg2);border-bottom:2px solid var(--border);
   overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1);max-height:0}
-.darea.show{max-height:210px}
+.darea.show{max-height:50dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}
 
 /* 候補バー（計算パネル外） */
 .mhint-bar{font-size:10px;color:var(--amber);background:#fdf4e3;border-bottom:1px solid #f0e2c0;
@@ -297,7 +297,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
     background:var(--text3);border-radius:2px;
   }
   .cpanel{max-height:none!important;overflow-y:auto;flex-shrink:0}
-  .darea{max-height:none!important;overflow-y:auto;flex-shrink:0}
+  .darea{max-height:50dvh!important;overflow-y:auto;flex-shrink:0}
   .list-wrap{flex:1;min-width:0;height:calc(100dvh - var(--hh) - var(--sat-t) - var(--sat-b));overflow-x:hidden}
   .ctgl{display:none}
 }
@@ -339,7 +339,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 <div class="app">
 
 <header class="hdr">
-  <div class="logo">給食成分表<span>Diet Calc</span><span class="ver">v1.3.1</span></div>
+  <div class="logo">給食成分表<span>Diet Calc</span><span class="ver">v1.3.3</span></div>
   <div class="sw">
     <input type="search" id="srch" placeholder="食種名で検索…" autocomplete="off" oninput="onSearch(this.value)">
     <span class="sw-x" onclick="clearSearch()">✕</span>
@@ -503,12 +503,12 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
       </div>
     </div>
     <div class="d-extra" id="d-extra" style="display:none">
-      <div class="stitle">電解質・水分（経腸栄養/補助食品）</div>
-      <div class="elec">
-        <div class="ecard"><div class="el-l">Na<span class="badge2">確定</span></div><div class="el-v"><span id="e-na">—</span><span class="euni">mg</span></div><div class="el-sub">食塩から計算＋栄養剤実測</div></div>
+      <div class="stitle" id="elecTitle">電解質・水分（経腸栄養/補助食品）</div>
+      <div class="elec" id="elecGrid">
+        <div class="ecard"><div class="el-l">Na<span class="badge2">確定</span></div><div class="el-v"><span id="e-na">—</span><span class="euni">mg</span></div><div class="el-sub">栄養剤由来（実測）</div></div>
         <div class="ecard"><div class="el-l">水分<span class="badge2">実測</span></div><div class="el-v"><span id="e-water">—</span><span class="euni">mL</span></div><div class="el-sub">栄養剤由来（溶解水は別）</div></div>
-        <div class="ecard"><div class="el-l">K カリウム</div><div class="el-v" id="e-k">—</div><div class="el-sub">栄養剤=実測／<span style="color:var(--amber)">給食=目安</span></div></div>
-        <div class="ecard"><div class="el-l">P リン</div><div class="el-v" id="e-p">—</div><div class="el-sub">栄養剤=実測／<span style="color:var(--amber)">給食=目安</span></div></div>
+        <div class="ecard"><div class="el-l">K カリウム</div><div class="el-v" id="e-k">—</div><div class="el-sub">栄養剤由来（実測）</div></div>
+        <div class="ecard"><div class="el-l">P リン</div><div class="el-v" id="e-p">—</div><div class="el-sub">栄養剤由来（実測）</div></div>
       </div>
       <div class="stitle" style="margin-top:8px">コメント</div>
       <div class="cmt" id="d-cmt"></div>
@@ -569,13 +569,20 @@ const NUTR=[
 const MP=95,MF=60,MC=370,MS=10;
 const MAINTBL={"エネルギー調整食1200": ["米飯", 110, "推定"], "エネルギー調整食1280": ["米飯", 120, "推定"], "エネルギー調整食1360": ["米飯", 130, "推定"], "エネルギー調整食1440": ["米飯", 140, "推定"], "エネルギー調整食1520": ["米飯", 150, "推定"], "エネルギー調整食1600": ["米飯", 160, "推定"], "エネルギー調整食1680": ["米飯", 170, "推定"], "エネルギー調整食1760": ["米飯", 180, "推定"], "エネルギー調整食1840": ["米飯", 190, "推定"], "エネルギー調整食1920": ["米飯", 200, "推定"], "エネルギー調整食2000": ["米飯", 220, "推定"], "エネルギー調整食2080": ["米飯", 230, "推定"], "エネルギー調整食2160": ["米飯", 240, "推定"], "エネルギー調整食800ライト": ["米飯", 80, "推定"], "調整食塩分6/1400": ["米飯", 120, "実測"], "調整食塩分6/1600": ["米飯", 180, "実測"], "調整食塩分6/1800": ["米飯", 250, "実測"], "調整食塩分ライト3g/800": ["米飯", 90, "実測"], "心不全食塩分6/1400": ["米飯", 120, "実測"], "心不全食塩分6/1600": ["米飯", 180, "実測"], "心不全食塩分6/1800": ["米飯", 250, "実測"], "腎調整食タンパク40/1400": ["米飯", 150, "実測"], "腎調整食タンパク40/1600": ["米飯", 150, "実測"], "腎調整食タンパク40/1800": ["米飯", 180, "実測"], "腎調整食タンパク50/1800": ["米飯", 180, "実測"], "腎調整食タンパク50/2000": ["米飯", 200, "実測"], "糖腎調整食P40/1600": ["米飯", 150, "実測"], "糖腎調整食P40/1800": ["米飯", 180, "実測"], "糖腎調整食P40/1800(2)": ["米飯", 180, "実測"], "糖腎調整食P50/1800": ["米飯", 180, "実測"], "糖腎調整食P50/2000": ["米飯", 200, "実測"], "透析食タンパク50/1600": ["米飯", 150, "実測"], "透析食タンパク60/2000": ["米飯", 200, "実測"], "肝臓食A1600": ["米飯", 160, "実測"], "肝臓食B1800": ["米飯", 200, "実測"], "肝臓食C2000": ["米飯", 250, "実測"], "肝臓食800": ["米飯", 80, "実測"], "肝調整食タンパク20/1200": ["米飯", 150, "実測"], "肝調整食タンパク40/1400": ["米飯", 150, "実測"], "肝調整食タンパク40/1200": ["米飯", 150, "実測"], "貧血食1400": ["米飯", 120, "実測"], "貧血食1600": ["米飯", 160, "実測"], "貧血食1800": ["米飯", 200, "実測"], "貧血食800": ["米飯", 80, "実測"], "膵・胆食Ⅰ500": ["重湯", 200, "推定"], "膵・胆食Ⅱ800": ["三分", 200, "推定"], "膵・胆食Ⅲ1200": ["五分", 250, "推定"], "膵・胆食Ⅳ1400": ["全粥", 300, "推定"], "膵・胆食Ⅳライト700": ["全粥", 150, "推定"], "注腸検査食": ["none", 0, "推定"], "CT食": ["none", 0, "推定"], "消)術後食流動400": ["重湯", 200, "基準"], "消)術後食三分1200": ["三分", 200, "基準"], "消)術後食三分600": ["三分", 200, "基準"], "消)術後食五分1400": ["五分", 250, "基準"], "消)術後食五分700": ["五分", 250, "基準"], "消)術後食七分1760": ["七分", 300, "基準"], "消)術後食全粥1870": ["全粥", 300, "基準"], "消)術後食全粥935": ["全粥", 300, "基準"], "消)術後食軟飯2040": ["軟飯", 240, "基準"], "消)術後食軟飯1020": ["軟飯", 240, "基準"], "消)術後食米飯2080": ["米飯", 200, "基準"], "消)術後食米飯1040": ["米飯", 200, "基準"], "潰瘍食流動340": ["重湯", 200, "基準"], "潰瘍食三分1320": ["三分", 200, "基準"], "潰瘍食三分ライト660": ["三分", 100, "基準"], "潰瘍食五分1360": ["五分", 250, "基準"], "潰瘍食七分1760": ["七分", 300, "基準"], "潰瘍食七分ライト880": ["七分", 150, "基準"], "潰瘍食全粥1870": ["全粥", 300, "基準"], "潰瘍食軟飯2040": ["軟飯", 240, "基準"], "潰瘍食軟飯ライト1020": ["軟飯", 120, "基準"], "潰瘍食米飯2080": ["米飯", 200, "基準"], "潰瘍食米飯ライト1040": ["米飯", 100, "基準"], "腸炎食流動400": ["重湯", 200, "基準"], "腸炎食三分500": ["三分", 200, "基準"], "腸炎食五分700": ["五分", 250, "基準"], "腸炎食五分350": ["五分", 250, "基準"], "腸炎食七分1100": ["七分", 300, "基準"], "腸炎食七分550": ["七分", 300, "基準"], "腸炎食全粥1400": ["全粥", 300, "基準"], "腸炎食全粥700": ["全粥", 300, "基準"], "腸炎食軟飯1900": ["軟飯", 240, "基準"], "腸炎食軟飯700": ["軟飯", 240, "基準"], "腸炎食米飯1900": ["米飯", 200, "基準"], "腸炎食米飯950": ["米飯", 200, "基準"], "低残渣食1300": ["米飯", 180, "実測"], "低残渣食600": ["米飯", 90, "実測"], "潰瘍性大腸炎食流動370": ["重湯", 200, "基準"], "潰瘍性大腸炎食三分600": ["三分", 200, "基準"], "潰瘍性大腸炎食五分1000": ["五分", 250, "基準"], "潰瘍性大腸炎食七分1200": ["七分", 300, "基準"], "潰瘍性大腸炎食全粥1500": ["全粥", 300, "基準"], "潰瘍性大腸炎食軟飯1800": ["軟飯", 240, "基準"], "潰瘍性大腸炎食米飯1800": ["米飯", 200, "基準"], "クローン食流動370": ["重湯", 200, "基準"], "クローン食三分600": ["三分", 200, "基準"], "クローン食五分1000": ["五分", 250, "基準"], "クローン食全粥1200": ["全粥", 300, "基準"], "クローン食全粥1500": ["全粥", 300, "基準"], "クローン食軟飯1800": ["軟飯", 240, "基準"], "クローン食米飯1800": ["米飯", 200, "基準"], "流動食700": ["重湯", 200, "基準"], "三分粥1200": ["三分", 200, "基準"], "三分粥600": ["三分", 200, "基準"], "五分粥1300": ["五分", 250, "基準"], "五分粥650": ["五分", 250, "基準"], "七分粥1600": ["七分", 300, "基準"], "七分粥800": ["七分", 300, "基準"], "全粥食1400": ["全粥", 300, "基準"], "全粥食1700": ["全粥", 300, "基準"], "全粥食850": ["全粥", 300, "基準"], "嚥下開始食ゼリー240": ["重湯", 100, "推定"], "嚥下食Ⅰ流動550": ["重湯", 200, "基準"], "嚥下食Ⅰライト275": ["重湯", 100, "推定"], "嚥下食ⅡミキサーⅡ1200": ["全粥", 240, "推定"], "嚥下食Ⅱミキサー600": ["全粥", 120, "推定"], "嚥下食Ⅲきざみ1200": ["全粥", 240, "推定"], "嚥下食Ⅲきざみ600": ["全粥", 120, "推定"], "嚥下食Ⅳ-ロ大1200": ["軟飯", 200, "推定"], "嚥下食Ⅳ-ロ大ライト600": ["軟飯", 100, "推定"], "常食1400": ["米飯", 120, "実測"], "常食1600": ["米飯", 160, "実測"], "常食1700": ["米飯", 180, "実測"], "常食1800": ["米飯", 200, "実測"], "常食2000": ["米飯", 250, "実測"], "常食800": ["米飯", 80, "実測"], "常食塩分6/1400": ["米飯", 120, "実測"], "常食塩分6/1600": ["米飯", 160, "実測"], "常食塩分6/2000": ["米飯", 250, "実測"], "学童食(6～9歳)1400": ["米飯", 150, "実測"], "学童食(10～12歳)1600": ["米飯", 200, "実測"], "幼児食(1.7～2歳)1000": ["米飯", 100, "実測"]};
 const MAINCOMP={"米飯":47,"軟飯":33,"全粥":20,"七分":15,"五分":10,"三分":7.5,"重湯":5,"none":0};
+const MEALS=3;
 const ENT_TAGS=["消化態","成分栄養","半固形","逆流防止","腎","肝","糖尿病用"];
 function isEnteral(x){return x.type==="医薬品"||x.tags.some(function(t){return ENT_TAGS.indexOf(t)>=0;});}
 function srcSplit(){
-  var m={P:0,F:0,C:0};
+  var m={P:0,F:0,C:0},mSc=1;
   if(typeof selIdx!=="undefined"&&selIdx!=null){
     var d=DB[selIdx],t=MAINTBL[d.name];
-    if(t&&t[0]!=="none"){var r=MAINCOMP[t[0]],k=t[1]/100*r/47;m={P:2.5*k,F:0.3*k,C:37.1*k};}
+    if(t&&t[0]!=="none"){var r=MAINCOMP[t[0]],k=t[1]/100*r/47*MEALS;
+      var raw={P:2.5*k,F:0.3*k,C:37.1*k},sc=1;
+      if(raw.P>0)sc=Math.min(sc,d.prot/raw.P);
+      if(raw.F>0)sc=Math.min(sc,d.fat/raw.F);
+      if(raw.C>0)sc=Math.min(sc,d.carb/raw.C);
+      sc=Math.max(0,Math.min(1,sc));mSc=sc;
+      m={P:raw.P*sc,F:raw.F*sc,C:raw.C*sc};}
   }
   var okazu={P:0,F:0,C:0},supp={P:0,F:0,C:0},ent={P:0,F:0,C:0};
   if(typeof selIdx!=="undefined"&&selIdx!=null){
@@ -583,7 +590,7 @@ function srcSplit(){
     okazu.P=Math.max(0,dd.prot-m.P);okazu.F=Math.max(0,dd.fat-m.F);okazu.C=Math.max(0,dd.carb-m.C);
   }
   for(var i in trayN){var x=NUTR[i],q=trayN[i],g=isEnteral(x)?ent:supp;g.P+=x.prot*q;g.F+=x.fat*q;g.C+=x.carb*q;}
-  return {main:m,okazu:okazu,supp:supp,ent:ent};
+  return {main:m,okazu:okazu,supp:supp,ent:ent,sc:mSc};
 }
 function _kc(o){return o.P*4+o.F*9+o.C*4;}
 /* v1.3.1 実摂取：主食*sM+おかず*sS+補助食品(満額)+経腸(満額)。
@@ -593,11 +600,22 @@ function realIntake(){
   var P=s.main.P*sM+s.okazu.P*sS+s.supp.P+s.ent.P;
   var F=s.main.F*sM+s.okazu.F*sS+s.supp.F+s.ent.F;
   var C=s.main.C*sM+s.okazu.C*sS+s.supp.C+s.ent.C;
-  var foodK=0,trayK=0;
-  if(selIdx!=null)foodK=DB[selIdx].kcal;
-  for(var i in trayN)trayK+=NUTR[i].kcal*trayN[i];
-  var kcal=foodK - _kc(s.main)*(1-sM) - _kc(s.okazu)*(1-sS) + trayK;
-  return {P:P,F:F,C:C,kcal:kcal};
+  var foodK=0,foodSalt=0,trayK=0,traySalt=0,trayNa=0,trayKk=0,trayPh=0,trayW=0;
+  if(selIdx!=null){foodK=DB[selIdx].kcal;foodSalt=DB[selIdx].salt;}
+  for(var i in trayN){var x=NUTR[i],q=trayN[i];
+    trayK+=x.kcal*q;traySalt+=x.salt*q;trayNa+=x.na*q;
+    if(x.k!=null)trayKk+=x.k*q;
+    if(x.ph!=null)trayPh+=x.ph*q;
+    trayW+=x.water*q;}
+  /* kcal は表示kcal（栄養科の公式値）を主食/副食のPFC由来kcal比で按分。
+     10割=表示kcalに一致、0割=0kcal を構造的に保証（負値・残存が発生しない）。 */
+  var mk=_kc(s.main),ok=_kc(s.okazu),fk=mk+ok;
+  var kcal=(fk>0 ? foodK*(mk*sM+ok*sS)/fk : foodK*sS) + trayK;
+  if(kcal<0)kcal=0;
+  var salt=foodSalt*sS+traySalt;            /* 主食（米飯・粥）は無塩→sM無関係 */
+  var na=foodSalt*sS*393.7+trayNa;          /* 食種はsS連動、トレイは実測値 */
+  return {P:P,F:F,C:C,kcal:kcal,salt:salt,na:na,
+          naTray:trayNa,kTray:trayKk,pTray:trayPh,waterTray:trayW};
 }
 function renderIntakeUI(){
   var blk=document.getElementById('intakeBlk');if(!blk)return;
@@ -625,7 +643,7 @@ function renderSrc(){
   document.getElementById("sb-e").style.width=(ek/tot*100)+"%";
   document.getElementById("sb-leg").innerHTML="<span>主食 "+Math.round(mk)+"</span><span>副食 "+Math.round(ok)+"</span><span>経腸 "+Math.round(ek)+" kcal</span>";
   var integ=true;
-  if(selIdx!=null){var dd=DB[selIdx];integ=Math.abs(dd.prot*4+dd.fat*9+dd.carb*4-dd.kcal)<50;}
+  if(selIdx!=null){var dd=DB[selIdx];integ=Math.abs(dd.prot*4+dd.fat*9+dd.carb*4-dd.kcal)<50&&s.sc>=1;}
   box.classList.toggle("approx",!integ);
   function rw(pre,vm,vo,ve){var t=vm+vo+ve||1;
     document.getElementById(pre+"-m").style.width=(vm/t*100)+"%";
@@ -839,8 +857,8 @@ function makePieSVG(prot, fat, carb, size){
 }
 
 function combo(){
-  let o={kcal:0,p:0,f:0,c:0,salt:0,na:0,kFix:0,pFix:0,water:0,kEst:0,pEst:0,parts:[],mealCat:'',als:new Set()};
-  if(selIdx!=null){const d=DB[selIdx];o.kcal+=d.kcal;o.p+=d.prot;o.f+=d.fat;o.c+=d.carb;o.salt+=d.salt;o.na+=d.salt*393.7;o.kEst+=d.prot*25;o.pEst+=d.prot*15;o.mealCat=d.cat;o.parts.push(d.name);}
+  let o={kcal:0,p:0,f:0,c:0,salt:0,na:0,kFix:0,pFix:0,water:0,parts:[],mealCat:'',als:new Set()};
+  if(selIdx!=null){const d=DB[selIdx];o.kcal+=d.kcal;o.p+=d.prot;o.f+=d.fat;o.c+=d.carb;o.salt+=d.salt;o.na+=d.salt*393.7;o.mealCat=d.cat;o.parts.push(d.name);}
   for(const i in trayN){const q=trayN[i],x=NUTR[i];o.kcal+=x.kcal*q;o.p+=x.prot*q;o.f+=x.fat*q;o.c+=x.carb*q;o.salt+=x.salt*q;o.na+=x.na*q;if(x.k!=null)o.kFix+=x.k*q;if(x.ph!=null)o.pFix+=x.ph*q;o.water+=x.water*q;if(x.al)x.al.split('・').forEach(a=>o.als.add(a));o.parts.push(x.name+'\u00D7'+q);}
   o.als=[...o.als];return o;
 }
@@ -859,11 +877,15 @@ function renderCombo(){
   document.getElementById('vp').textContent=r1(R.P);
   document.getElementById('vf').textContent=r1(R.F);
   document.getElementById('vc').textContent=r1(R.C);
-  document.getElementById('vs').textContent=r1(d.salt);
+  document.getElementById('vs').textContent=r1(R.salt);
   if(R.kcal>0){
     document.getElementById('pp').textContent=Math.round(R.P*4/R.kcal*100)+'%';
     document.getElementById('fp').textContent=Math.round(R.F*9/R.kcal*100)+'%';
     document.getElementById('cp').textContent=Math.round(R.C*4/R.kcal*100)+'%';
+  }else{
+    document.getElementById('pp').textContent='—';
+    document.getElementById('fp').textContent='—';
+    document.getElementById('cp').textContent='—';
   }
   const badge=document.getElementById('dbadge');
   if(tgt){const pct=Math.round(R.kcal/tgt*100);badge.textContent='必要量 '+pct+'%';badge.className='dbadge show '+(pct>110?'over':pct<90?'low':'ok');}
@@ -872,23 +894,31 @@ function renderCombo(){
     document.getElementById('bp').style.width=Math.min(100,R.P/MP*100)+'%';
     document.getElementById('bf').style.width=Math.min(100,R.F/MF*100)+'%';
     document.getElementById('bc').style.width=Math.min(100,R.C/MC*100)+'%';
-    document.getElementById('bs').style.width=Math.min(100,d.salt/MS*100)+'%';
+    document.getElementById('bs').style.width=Math.min(100,R.salt/MS*100)+'%';
   });
-  renderElecCmt(d);
+  renderElecCmt(d,R);
   renderSrc();
 }
-function renderElecCmt(d){
+function renderElecCmt(d,IN){
   const box=document.getElementById('d-extra');
   if(!Object.keys(trayN).length){box.style.display='none';return;}
   box.style.display='block';
-  const R=Math.round, hasMeal=selIdx!=null;
-  document.getElementById('e-na').textContent=R(d.na);
-  document.getElementById('e-water').textContent=R(d.water);
-  document.getElementById('e-k').innerHTML=R(d.kFix)+(hasMeal?'<span class="est">\uFF0B約'+R(d.kEst)+'</span>':'');
-  document.getElementById('e-p').innerHTML=R(d.pFix)+(hasMeal?'<span class="est">\uFF0B約'+R(d.pEst)+'</span>':'');
+  const R=Math.round;
+  /* 電解質グリッドのみ「経腸/補助の単独選択時」に限定。
+     コメント・アレルギー・高K警告は食種併用時こそ必要なため従来どおり表示する。 */
+  const solo=(selIdx==null);
+  const eT=document.getElementById('elecTitle'), eG=document.getElementById('elecGrid');
+  if(eT)eT.style.display=solo?'':'none';
+  if(eG)eG.style.display=solo?'':'none';
+  if(solo){
+    document.getElementById('e-na').textContent=R(IN.naTray);
+    document.getElementById('e-water').textContent=R(IN.waterTray);
+    document.getElementById('e-k').textContent=R(IN.kTray);
+    document.getElementById('e-p').textContent=R(IN.pTray);
+  }
   let cm='', c=d.mealCat||'';
-  if(c.includes('腎'))cm+='<div class="ci2"><span>\U0001F9C2</span><span><b>腎・糖尿病食</b>：K・リンが管理対象。栄養剤由来 K計'+R(d.kFix)+'／P計'+R(d.pFix)+'mg。給食分は目安値です。</span></div>';
-  else if(c.includes('塩分'))cm+='<div class="ci2"><span>\U0001F4A7</span><span><b>塩分制限</b>：Na・水分が管理対象。Na計'+R(d.na)+'mg、栄養剤水分計'+R(d.water)+'mL。</span></div>';
+  if(c.includes('腎'))cm+='<div class="ci2"><span>\U0001F9C2</span><span><b>腎・糖尿病食</b>：K・リンが管理対象。栄養剤由来 K計'+R(IN.kTray)+'／P計'+R(IN.pTray)+'mg（栄養剤由来の実測値です）。</span></div>';
+  else if(c.includes('塩分'))cm+='<div class="ci2"><span>\U0001F4A7</span><span><b>塩分制限</b>：Na・水分が管理対象。Na計'+R(IN.na)+'mg、栄養剤水分計'+R(IN.waterTray)+'mL。</span></div>';
   else if(c.includes('肝'))cm+='<div class="ci2"><span>\U0001F537</span><span><b>肝疾患</b>：BCAA配合品を優先すると相性良好。</span></div>';
   if(d.als.length)cm+='<div class="ci2"><span>\u26A0</span><span>アレルギー：'+d.als.join('・')+'</span></div>';
   cm+='<div class="ci2"><span>\U0001F48A</span><span>栄養剤'+Object.keys(trayN).length+'品を使用中。単独長期はビタミン・微量元素の不足に注意。</span></div>';
