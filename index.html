@@ -76,19 +76,34 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
   padding:5px 9px;font-size:11px;cursor:pointer;white-space:nowrap;flex-shrink:0;
   font-family:var(--font);transition:border-color .12s,color .12s}
 .ctgl.on{border-color:var(--accent);color:var(--accent)}
+.ctgl .mtag{font-size:9px;font-weight:800;padding:1px 6px;border-radius:999px;background:var(--bg2);color:var(--text3);letter-spacing:.04em;margin-left:2px}
+.ctgl.on .mtag{background:#d0e4fa;color:var(--accent)}
 
 /* ══ Calc panel ══ */
-.cpanel{flex-shrink:0;background:var(--bg2);border-bottom:2px solid var(--border);
-  overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1);max-height:0}
-.cpanel.open{max-height:290px}
-.ci{padding:6px 8px 8px;display:flex;flex-direction:column;gap:5px}
+.cpanel{flex-shrink:0;background:var(--bg2);border-bottom:2px solid var(--border)}
+.ci{padding:6px 8px 8px;display:flex;flex-direction:column;gap:5px;transition:gap .28s}
 /* result card inside icard grid */
 .icard.rc{display:flex;flex-direction:column;justify-content:center;gap:2px;padding:6px 7px}
 .icard.rc.hi{border-color:var(--accent);background:var(--card-on)}
 .cc-l{font-size:8px;color:var(--text3);font-weight:600;letter-spacing:.03em;line-height:1.2}
-.cc-v{font-size:28px;font-weight:900;color:var(--accent2);font-variant-numeric:tabular-nums;line-height:1.05}
+.cc-v{font-size:28px;font-weight:900;color:var(--accent2);font-variant-numeric:tabular-nums;line-height:1.05;transition:font-size .28s}
 .icard.rc.hi .cc-v{color:var(--accent);font-size:28px}
 .cc-u{font-size:8px;color:var(--text3)}
+
+/* ══ v1.3.5 記述モード：入力UIを畳んで上下幅を短縮 ══ */
+.cpanel.rec .ci{gap:4px}
+.cpanel.rec .ic-btns,
+.cpanel.rec .ic-rng{display:none}
+.cpanel.rec .icard{padding:5px 9px}
+.cpanel.rec .icard:not(.rc){flex-direction:row;align-items:baseline;gap:6px}
+.cpanel.rec .ic-head{flex:1}
+.cpanel.rec .ic-val{font-size:20px}
+.cpanel.rec .ic-val.sm{font-size:18px}
+.cpanel.rec .ic-desc{min-height:0;text-align:right;font-size:8.5px;white-space:nowrap;align-self:baseline;color:var(--text3)}
+.cpanel.rec .icard.rc{padding:5px 7px;flex-direction:row;align-items:baseline;flex-wrap:wrap;gap:0 5px}
+.cpanel.rec .icard.rc .cc-l{width:100%;order:1}
+.cpanel.rec .icard.rc .cc-v{font-size:20px;order:2}
+.cpanel.rec .icard.rc .cc-u{order:3}
 
 /* Sex row */
 .sex-row{display:flex;align-items:center;gap:8px;padding:0 2px}
@@ -109,18 +124,18 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 /* ── Input card ── */
 .icard{
   background:var(--panel);border:1px solid var(--border);border-radius:9px;
-  padding:7px 8px 6px;display:flex;flex-direction:column;gap:4px;
+  padding:7px 8px 9px;display:flex;flex-direction:column;gap:4px;transition:padding .28s,gap .28s;
 }
 /* label + value on one line */
 .ic-head{display:flex;align-items:baseline;gap:5px}
 .ic-lbl{font-size:9px;color:var(--text3);font-weight:700;letter-spacing:.06em;white-space:nowrap;flex-shrink:0}
 .ic-val{
   font-size:24px;font-weight:900;
-  color:var(--accent);font-variant-numeric:tabular-nums;line-height:1;
+  color:var(--accent);font-variant-numeric:tabular-nums;line-height:1;transition:font-size .28s;
 }
 .ic-val.sm{font-size:19px}
 .ic-unit{font-size:9px;color:var(--text3);margin-left:1px;font-weight:400}
-.ic-desc{font-size:8px;color:var(--text2);line-height:1.2;min-height:13px;text-align:center}
+.ic-desc{font-size:8px;color:var(--text2);line-height:1.2;min-height:13px;text-align:center;transition:all .28s}
 
 /* ── ± buttons row ── */
 .ic-btns{display:flex;gap:4px}
@@ -138,7 +153,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 .ic-rng{
   -webkit-appearance:none;appearance:none;
   width:100%;height:4px;border-radius:999px;background:var(--border);
-  outline:none;cursor:pointer;margin-top:8px;
+  outline:none;cursor:pointer;margin-top:5px;
 }
 .ic-rng::-webkit-slider-thumb{
   -webkit-appearance:none;width:20px;height:20px;border-radius:50%;
@@ -202,8 +217,6 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 @media(prefers-reduced-motion:reduce){.darea.gsnap{transition:none}}
 
 /* 候補バー（計算パネル外） */
-.mhint-bar{font-size:10px;color:var(--amber);background:#fdf4e3;border-bottom:1px solid #f0e2c0;
-  padding:5px 12px;line-height:1.4}
 
 /* 計算パネル内mhintは非表示 */
 .mhint{display:none!important}
@@ -359,18 +372,18 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 <div class="app">
 
 <header class="hdr">
-  <div class="logo">給食成分表<span>Diet Calc</span><span class="ver">v1.3.4</span></div>
+  <div class="logo">給食成分表<span>Diet Calc</span><span class="ver">v1.3.5</span></div>
   <div class="sw">
     <input type="search" id="srch" placeholder="食種名で検索…" autocomplete="off" oninput="onSearch(this.value)">
     <span class="sw-x" onclick="clearSearch()">✕</span>
   </div>
-  <button class="ctgl on" id="ctgl" onclick="toggleCalc()">⚡計算</button>
+  <button class="ctgl on" id="ctgl" onclick="toggleMode()">⚡計算 <span class="mtag" id="mtag">入力</span></button>
 </header>
 
 <div class="left-col">
 
 <!-- ══ Calculator ══ -->
-<div class="cpanel open" id="cpanel">
+<div class="cpanel" id="cpanel">
 <div class="ci">
 
   <!-- 性別 + BMI -->
@@ -467,8 +480,6 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 </div>
 </div><!-- /cpanel -->
 
-<!-- 候補ヒント（計算パネル外・食事リスト上） -->
-<div class="mhint-bar" id="mhint-bar" style="display:none"></div>
 
 <!-- ══ Food detail ══ -->
 <div class="darea" id="darea">
@@ -837,9 +848,11 @@ function setSex(s){
   document.getElementById('sx-f').classList.toggle('on',s==='f');
   calcAll();
 }
-function toggleCalc(){
-  const p=document.getElementById('cpanel'),b=document.getElementById('ctgl');
-  p.classList.toggle('open'); b.classList.toggle('on',p.classList.contains('open'));
+function toggleMode(){
+  const p=document.getElementById('cpanel'),b=document.getElementById('ctgl'),t=document.getElementById('mtag');
+  const rec=p.classList.toggle('rec');       // rec=記述モード
+  b.classList.toggle('on',!rec);             // 入力モードでボタンを強調
+  if(t) t.textContent=rec?'記述':'入力';
 }
 
 /* ── Harris-Benedict ── */
@@ -856,12 +869,6 @@ function calcAll(){
   document.getElementById('r-bmr').textContent=Math.round(bmr);
   document.getElementById('r-tee').textContent=tgt;
 
-  const hits=DB.filter(d=>Math.abs(d.kcal-tgt)<=100);
-  const mh=document.getElementById('mhint-bar');
-  if(hits.length){
-    mh.textContent=`✓ 候補 ${hits.length}件 — ${hits.slice(0,3).map(d=>d.name).join('、')}${hits.length>3?'…':''}`;
-    mh.style.display='block';
-  } else { mh.style.display='none'; }
   refreshDots(); updateBadge();
 }
 
