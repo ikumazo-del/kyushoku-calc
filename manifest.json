@@ -1,0 +1,19 @@
+{
+  "name": "給食成分表 — NST Calorie Calculation",
+  "short_name": "給食成分表",
+  "description": "食種・経腸栄養・輸液を合算し、必要エネルギーとの充足率を確認する院内向け栄養計算ツール",
+  "lang": "ja",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7f9fc",
+  "theme_color": "#ffffff",
+  "icons": [
+    { "src": "./icons/icon-192.png",          "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-512.png",          "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "./icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

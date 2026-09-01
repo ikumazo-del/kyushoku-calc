@@ -5,7 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="給食成分表">
+<meta name="theme-color" content="#ffffff">
+<meta name="description" content="食種・経腸栄養・輸液を合算し、必要エネルギーとの充足率を確認する院内向け栄養計算ツール">
 <title>給食成分表</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16x16.png">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
 <style>
 :root{
   --bg:#f7f9fc;--bg2:#eef2f8;--panel:#ffffff;--border:#e2e8f0;
@@ -1650,5 +1659,16 @@ calcAll();
 </script>
 
 <script>document.addEventListener("DOMContentLoaded",function(){if(typeof gripBind==="function")gripBind();});</script>
+
+<!-- PWA: Service Worker 登録 -->
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('./sw.js').catch(function(e){
+      console.warn('SW registration failed:',e);
+    });
+  });
+}
+</script>
 </body>
 </html>
